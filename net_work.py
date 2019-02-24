@@ -69,7 +69,7 @@ class trainner():
             inputs[placeholders.name[:-2]]=placeholders
 
 
-        loss = faster_rcnn(inputs)
+        loss = faster_rcnn(inputs,L2_reg, training)
         regularization_losses = tf.add_n(tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES), name='l2_loss')
 
         return loss,regularization_losses

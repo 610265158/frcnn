@@ -162,7 +162,7 @@ def multilevel_rpn_losses(
     return [total_label_loss, total_box_loss]
 
 def generate_fpn_proposals(
-        multilevel_pred_boxes, multilevel_label_logits, image_shape2d,L2_reg,training):
+        multilevel_pred_boxes, multilevel_label_logits, image_shape2d,training):
     """
     Args:
         multilevel_pred_boxes: #lvl HxWxAx4 boxes

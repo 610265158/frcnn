@@ -21,7 +21,7 @@ config.TRAIN.val_iter=config.TRAIN.val_set_size// config.TRAIN.num_gpu // config
 config.TRAIN.lr_init = 0.001  # initial learning rate
 config.TRAIN.lr_decay_every_step = 10*config.TRAIN.iter_num_per_epoch  # evey number of step to decay lr
 config.TRAIN.lr_decay_factor = 0.7  # decay lr factor
-config.TRAIN.weight_decay_factor = 1.e-6
+config.TRAIN.weight_decay_factor = 1.e-7
 
 config.TRAIN.dropout=0.5  ##no use
 config.TRAIN.vis=False
@@ -86,6 +86,9 @@ config.BACKBONE.FREEZE_AT = 2  # options: 0, 1, 2
 
 
 config.MODEL = edict()
+
+config.MODEL.mode=True   ###True for train False for eval
+
 config.MODEL.MODE_MASK = False        # FasterRCNN or MaskRCNN
 config.MODEL.MODE_FPN = True
 

@@ -40,7 +40,7 @@ def resnet_arg_scope(bn_is_training,
 
                 return arg_sc
 
-def resnet50(image, bn_is_training, bn_trainable):
+def resnet50(image, L2_reg,bn_is_training, bn_trainable):
     bottleneck = resnet_v1.bottleneck
     blocks = [
         resnet_utils.Block('block1', bottleneck,
@@ -52,7 +52,7 @@ def resnet50(image, bn_is_training, bn_trainable):
         resnet_utils.Block('block4', bottleneck,
                            [(2048, 512, 2)] + [(2048, 512, 1)] * 2)
     ]
-    with slim.arg_scope(resnet_arg_scope(bn_is_training=bn_is_training, bn_trainable=bn_trainable)):
+    with slim.arg_scope(resnet_arg_scope(weight_decay=L2_reg,bn_is_training=bn_is_training, bn_trainable=bn_trainable)):
         with tf.variable_scope('resnet_v1_50', 'resnet_v1_50'):
 
 
@@ -69,18 +69,18 @@ def resnet50(image, bn_is_training, bn_trainable):
             global_pool=False, include_root_block=False,
             scope='resnet_v1_50')
 
-    with slim.arg_scope(resnet_arg_scope(bn_is_training=bn_is_training, bn_trainable=bn_trainable)):
+    with slim.arg_scope(resnet_arg_scope(weight_decay=L2_reg,bn_is_training=bn_is_training, bn_trainable=bn_trainable)):
         net2, _ = resnet_v1.resnet_v1(
             net, blocks[1:2],
             global_pool=False, include_root_block=False,
             scope='resnet_v1_50')
 
-    with slim.arg_scope(resnet_arg_scope(bn_is_training=bn_is_training, bn_trainable=bn_trainable)):
+    with slim.arg_scope(resnet_arg_scope(weight_decay=L2_reg,bn_is_training=bn_is_training, bn_trainable=bn_trainable)):
         net3, _ = resnet_v1.resnet_v1(
             net2, blocks[2:3],
             global_pool=False, include_root_block=False,
             scope='resnet_v1_50')
-    with slim.arg_scope(resnet_arg_scope(bn_is_training=bn_is_training, bn_trainable=bn_trainable)):
+    with slim.arg_scope(resnet_arg_scope(weight_decay=L2_reg,bn_is_training=bn_is_training, bn_trainable=bn_trainable)):
         net4, _ = resnet_v1.resnet_v1(
             net3, blocks[3:4],
             global_pool=False, include_root_block=False,

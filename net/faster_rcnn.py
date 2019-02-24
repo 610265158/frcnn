@@ -75,17 +75,13 @@ def fasterrcnn_arg_scope(weight_decay=0.00001,
 
 
 
-def backbone(image):
+def backbone(image,L2_reg,is_training):
     from net.resnet.backbone import plain_resnet50_backbone
-    p23456=plain_resnet50_backbone(image)
+    p23456=plain_resnet50_backbone(image,L2_reg,is_training)
     return p23456
 
 
-def backbone_(image):
 
-    c2345 = resnet_fpn_backbone(image, cfg.BACKBONE.RESNET_NUM_BLOCKS)
-    p23456 = fpn_model('fpn', c2345)
-    return p23456
 
 
 def slice_feature_and_anchors( p23456, anchors):
@@ -93,7 +89,7 @@ def slice_feature_and_anchors( p23456, anchors):
         with tf.name_scope('FPN_slice_lvl{}'.format(i)):
             anchors[i] = anchors[i].narrow_to(p23456[i])
 
-def rpn(image, features, inputs,L2_reg,training):
+def rpn(image, features, inputs,L2_reg,is_training,python_training=cfg.MODEL.mode):
     assert len(cfg.RPN.ANCHOR_SIZES) == len(cfg.FPN.ANCHOR_STRIDES)
 
     image_shape2d = tf.shape(image)[2:]     # h,w
@@ -117,7 +113,7 @@ def rpn(image, features, inputs,L2_reg,training):
     slice_feature_and_anchors(features, multilevel_anchors)
 
     # Multi-Level RPN Proposals
-    rpn_outputs = [rpn_head('rpn%d'%i, pi, cfg.FPN.NUM_CHANNEL, len(cfg.RPN.ANCHOR_RATIOS),L2_reg,training)
+    rpn_outputs = [rpn_head('rpn%d'%i, pi, cfg.FPN.NUM_CHANNEL, len(cfg.RPN.ANCHOR_RATIOS),L2_reg,is_training)
                    for i,pi in enumerate(features)]
 
     multilevel_label_logits = [k[0] for k in rpn_outputs]
@@ -128,11 +124,11 @@ def rpn(image, features, inputs,L2_reg,training):
 
 
     proposal_boxes, proposal_scores = generate_fpn_proposals(
-        multilevel_pred_boxes, multilevel_label_logits, image_shape2d,L2_reg,training)
+        multilevel_pred_boxes, multilevel_label_logits, image_shape2d,python_training)
 
     #print('multilevel_pred_boxes',multilevel_pred_boxes)
 
-    if training:
+    if python_training:######training mode or eval
         losses = multilevel_rpn_losses(
             multilevel_anchors, multilevel_label_logits, multilevel_box_logits)
     else:
@@ -140,12 +136,12 @@ def rpn(image, features, inputs,L2_reg,training):
 
     return BoxProposals(proposal_boxes), losses
 
-def roi_heads( image, features, proposals, targets,L2_reg,training):
+def roi_heads( image, features, proposals, targets,L2_reg,is_training,python_training=cfg.MODEL.mode):
     image_shape2d = tf.shape(image)[2:]     # h,w
     assert len(features) == 5, "Features have to be P23456!"
     gt_boxes, gt_labels, *_ = targets
 
-    if training:
+    if python_training:
         proposals = sample_fast_rcnn_targets(proposals.boxes, gt_boxes, gt_labels)
 
 
@@ -155,13 +151,13 @@ def roi_heads( image, features, proposals, targets,L2_reg,training):
         roi_feature_fastrcnn = multilevel_roi_align(features[:4], proposals.boxes, 7)
 
 
-        head_feature = fastrcnn_head_func('fastrcnn', roi_feature_fastrcnn,L2_reg,training)
+        head_feature = fastrcnn_head_func('fastrcnn', roi_feature_fastrcnn,L2_reg,is_training)
 
 
 
 
         fastrcnn_label_logits, fastrcnn_box_logits = fastrcnn_outputs(
-            'fastrcnn/outputs', head_feature, cfg.DATA.NUM_CLASS,L2_reg,training)
+            'fastrcnn/outputs', head_feature, cfg.DATA.NUM_CLASS,L2_reg,is_training)
 
 
         fastrcnn_head = FastRCNNHead(proposals, fastrcnn_box_logits, fastrcnn_label_logits,
@@ -176,7 +172,7 @@ def roi_heads( image, features, proposals, targets,L2_reg,training):
             proposals, roi_func, fastrcnn_head_func,
             (gt_boxes, gt_labels), image_shape2d, cfg.DATA.NUM_CLASS)
 
-    if training:
+    if python_training:
         all_losses = fastrcnn_head.losses()
 
         # if cfg.MODE_MASK:
@@ -231,18 +227,18 @@ def preprocess( image):
     image = tf.expand_dims(image, 0)
     #image = image_preprocess(image, bgr=True)
     return tf.transpose(image, [0, 3, 1, 2])
-def faster_rcnn( inputs,L2_reg=0.00001,training=True):
+def faster_rcnn( inputs,L2_reg=0.00001,is_training=True):
     from net.config import finalize_configs
     finalize_configs(True)
 
     anchor_inputs = {k: v for k, v in inputs.items() if 'anchor_' in k}
 
     image = preprocess(inputs['images'])  # 1CHW
-    features = backbone(image)
+    features = backbone(image,L2_reg,is_training)
 
-    proposals, rpn_losses = rpn(image, features, anchor_inputs,L2_reg,training)  # inputs?
+    proposals, rpn_losses = rpn(image, features, anchor_inputs,L2_reg,is_training)  # inputs?
 
     targets = [inputs[k] for k in ['gt_boxes', 'gt_labels', 'gt_masks'] if k in inputs]
-    head_losses = roi_heads(image, features, proposals, targets,L2_reg,training)
+    head_losses = roi_heads(image, features, proposals, targets,L2_reg,is_training)
     total_cost=rpn_losses+ head_losses
     return total_cost
