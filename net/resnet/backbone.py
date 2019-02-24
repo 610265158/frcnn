@@ -53,7 +53,7 @@ def create_global_net(blocks, is_training, trainable=True):
 def plain_resnet50_backbone(image,training=True):
 
     resnet_fms = resnet50(image, training, bn_trainable=True)
-    print('backbone output:',resnet_fms)
+    print('resnet50 backbone output:',resnet_fms)
 
     # with tf.variable_scope('CPN'):
     fpn_fms = create_global_net(resnet_fms, training)

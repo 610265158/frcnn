@@ -5,11 +5,11 @@ import numpy as np
 from easydict import EasyDict as edict
 
 config = edict()
-os.environ["CUDA_VISIBLE_DEVICES"] = "5"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2,4"
 
 config.TRAIN = edict()
-config.TRAIN.num_gpu = 1
-config.TRAIN.batch_size = 8
+config.TRAIN.num_gpu = 2
+config.TRAIN.batch_size = 1
 config.TRAIN.log_interval = 10
 config.TRAIN.epoch = 2000
 config.TRAIN.train_set_size=17000  ###########u need be sure
@@ -21,7 +21,7 @@ config.TRAIN.val_iter=config.TRAIN.val_set_size// config.TRAIN.num_gpu // config
 config.TRAIN.lr_init = 0.001  # initial learning rate
 config.TRAIN.lr_decay_every_step = 10*config.TRAIN.iter_num_per_epoch  # evey number of step to decay lr
 config.TRAIN.lr_decay_factor = 0.7  # decay lr factor
-config.TRAIN.weight_decay_factor = 5.e-4
+config.TRAIN.weight_decay_factor = 1.e-6
 
 config.TRAIN.dropout=0.5  ##no use
 config.TRAIN.vis=False

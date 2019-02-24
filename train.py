@@ -1,7 +1,7 @@
 from net_work import trainner
 
 import setproctitle
-setproctitle.setproctitle("face*_*_")
+setproctitle.setproctitle("rcnnface*_*_")
 
 
 trainner=trainner()

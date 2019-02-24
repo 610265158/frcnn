@@ -105,7 +105,6 @@ def rpn(image, features, inputs,L2_reg,training):
     for k_,v_ in inputs.items():
 
         if 'anchor' in k_:
-            print(k_)
             tower_str=k_.split('/')[0]
             break
 
@@ -131,7 +130,7 @@ def rpn(image, features, inputs,L2_reg,training):
     proposal_boxes, proposal_scores = generate_fpn_proposals(
         multilevel_pred_boxes, multilevel_label_logits, image_shape2d,L2_reg,training)
 
-    print('multilevel_pred_boxes',multilevel_pred_boxes)
+    #print('multilevel_pred_boxes',multilevel_pred_boxes)
 
     if training:
         losses = multilevel_rpn_losses(
@@ -156,18 +155,14 @@ def roi_heads( image, features, proposals, targets,L2_reg,training):
         roi_feature_fastrcnn = multilevel_roi_align(features[:4], proposals.boxes, 7)
 
 
-        print(roi_feature_fastrcnn)
         head_feature = fastrcnn_head_func('fastrcnn', roi_feature_fastrcnn,L2_reg,training)
 
 
 
-        print('x',head_feature)
 
         fastrcnn_label_logits, fastrcnn_box_logits = fastrcnn_outputs(
             'fastrcnn/outputs', head_feature, cfg.DATA.NUM_CLASS,L2_reg,training)
-        print('\n\n')
-        print('fastrcnn_label_logits',fastrcnn_label_logits)
-        print('fastrcnn_box_logits',fastrcnn_box_logits)
+
 
         fastrcnn_head = FastRCNNHead(proposals, fastrcnn_box_logits, fastrcnn_label_logits,
                                      gt_boxes, tf.constant(cfg.FRCNN.BBOX_REG_WEIGHTS, dtype=tf.float32))
@@ -201,6 +196,18 @@ def roi_heads( image, features, proposals, targets,L2_reg,training):
         #         pad_border=False)  # fg x 1x28x28
         #     target_masks_for_fg = tf.squeeze(target_masks_for_fg, 1, 'sampled_fg_mask_targets')
         #     all_losses.append(maskrcnn_loss(mask_logits, proposals.fg_labels(), target_masks_for_fg))
+
+
+                ###add predict nms here
+        decoded_boxes = fastrcnn_head.decoded_output_boxes()
+        decoded_boxes = clip_boxes(decoded_boxes, image_shape2d, name='fastrcnn_all_boxes')
+        label_scores = fastrcnn_head.output_scores(name='fastrcnn_all_scores')
+        final_boxes, final_scores, final_labels = fastrcnn_predictions(
+            decoded_boxes, label_scores, name_scope='output')
+
+        final_boxes=tf.identity(final_boxes,name='boxes')
+        final_scores = tf.identity(final_scores, name='scores')
+
         return all_losses
     else:
         decoded_boxes = fastrcnn_head.decoded_output_boxes()
@@ -232,17 +239,10 @@ def faster_rcnn( inputs,L2_reg=0.00001,training=True):
 
     image = preprocess(inputs['images'])  # 1CHW
     features = backbone(image)
-    print('FPNMODEL OUTPUT',features,'\n')
 
     proposals, rpn_losses = rpn(image, features, anchor_inputs,L2_reg,training)  # inputs?
 
-    # print('rpn done')
-    #
-
     targets = [inputs[k] for k in ['gt_boxes', 'gt_labels', 'gt_masks'] if k in inputs]
-    #
     head_losses = roi_heads(image, features, proposals, targets,L2_reg,training)
-    #
-    # print('head done')
-    total_cost=rpn_losses + head_losses
+    total_cost=rpn_losses+ head_losses
     return total_cost

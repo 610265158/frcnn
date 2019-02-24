@@ -105,17 +105,19 @@ def _data_aug_fn(image, ground_truth,is_training=True):
     #     else:
     #         boxes_clean.append(box)
     boxes=np.array(boxes,dtype=np.float32)
-
-    # for i in range(boxes.shape[0]):
-    #     box=boxes[i]
-    #     cv2.rectangle(image, (int(box[1]*cfg.MODEL.hin), int(box[0]*cfg.MODEL.hin)),
-    #                                 (int(box[3]*cfg.MODEL.hin), int(box[2]*cfg.MODEL.hin)), (255, 0, 0), 7)
+    boxes_refine=np.zeros_like(boxes)
+    boxes_refine[:,0]=boxes[:,1]
+    boxes_refine[:, 1] = boxes[:, 0]
+    boxes_refine[:, 2] = boxes[:, 3]
+    boxes_refine[:, 3] = boxes[:, 2]
 
     image = image.astype(np.float32)/255.
-    crowd=np.zeros(shape=[boxes.shape[0]])
-    klass=np.zeros(shape=[boxes.shape[0]])
-    ret =prepare_data(image,boxes,klass,crowd)
+    crowd=np.zeros(shape=[boxes_refine.shape[0]])
+    klass=np.ones(shape=[boxes_refine.shape[0]])
+    ret =prepare_data(image,boxes_refine,klass,crowd)
     return ret
+
+
 def prepare_data(image,boxes,klass,is_crowd=0):
 
     boxes = np.copy(boxes)

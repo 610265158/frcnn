@@ -418,6 +418,7 @@ class FastRCNNHead(object):
         encoded_fg_gt_boxes = encode_bbox_target(
             tf.gather(self.gt_boxes, self.proposals.fg_inds_wrt_gt),
             self.proposals.fg_boxes()) * self.bbox_regression_weights
+
         return fastrcnn_losses(
             self.proposals.labels, self.label_logits,
             encoded_fg_gt_boxes, self.fg_box_logits()

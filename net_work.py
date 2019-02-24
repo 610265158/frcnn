@@ -24,6 +24,9 @@ from helper.logger import logger
 
 
 
+import tensorflow.contrib.eager as tfe
+ 
+tf.enable_eager_execution()
 class trainner():
     def __init__(self):
         self.train_data_set=get_data_set(cfg.DATA.root_path,cfg.DATA.train_txt_path)
@@ -67,9 +70,9 @@ class trainner():
 
 
         loss = faster_rcnn(inputs)
+        regularization_losses = tf.add_n(tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES), name='l2_loss')
 
-
-        return loss
+        return loss,regularization_losses
     def average_gradients(self,tower_grads):
         """Calculate the average gradient for each shared variable across all towers.
 
@@ -208,14 +211,14 @@ class trainner():
                                                     biases_regularizer=biases_regularizer,
                                                     weights_initializer=weights_initializer,
                                                     biases_initializer=biases_initializer):
-                                   loss = self.tower_loss(
+                                   loss,l2_loss = self.tower_loss(
                                         scope, images_, labels_,boxes_,total_anchor, L2_reg, training)
 
                                     ##use muti gpu ,large batch
                                    if i == cfg.TRAIN.num_gpu - 1:
-                                       total_loss = tf.add_n([ loss])
+                                       total_loss = tf.add_n([ *loss,l2_loss])
                                    else:
-                                       total_loss = tf.add_n([ loss])
+                                       total_loss = tf.add_n([ *loss])
 
                                 # Reuse variables for the next tower.
                                 tf.get_variable_scope().reuse_variables()
@@ -268,8 +271,8 @@ class trainner():
                 train_op = tf.group(apply_gradient_op, *bn_update_ops)
 
             self.inputs=[images_place_holder_list,boxes_place_holder_list,labels_place_holder_list,anchors_place_holder_list,keep_prob,L2_reg,training]
-            self.outputs=[train_op,total_loss, ]
-            self.val_outputs=[grads,total_loss, ]
+            self.outputs=[train_op,total_loss,loss,l2_loss,lr ]
+            self.val_outputs=[grads,total_loss,loss,l2_loss,lr ]
             # Create a saver.
             self.saver = tf.train.Saver(tf.global_variables(), max_to_keep=None)
 
@@ -318,7 +321,7 @@ class trainner():
             min_loss_control=1000.
             for epoch in range(cfg.TRAIN.epoch):
                 self._train(train_ds,epoch)
-                val_loss,val_acc=self._val(val_ds,epoch)
+                val_loss=self._val(val_ds,epoch)
                 #logger.info('**************'
                 #            'val_loss %f ,val_acc %f'%(val_loss,val_acc))
 
@@ -345,7 +348,7 @@ class trainner():
     def _train(self,train_ds,_epoch):
         for step in range(cfg.TRAIN.iter_num_per_epoch):
             self.ite_num += 1
-            start_time = time.time()
+
 
 
             ########show_flag check the data
@@ -367,11 +370,13 @@ class trainner():
                 cv2.imshow('img', example_image)
                 cv2.waitKey(0)
             else:
-                fetch_duration = time.time() - start_time
 
+                start_time = time.time()
                 feed_dict = {}
                 for n in range(cfg.TRAIN.num_gpu):
+
                     examples = next(train_ds)
+
                     feed_dict[self.inputs[0][n]] = examples['image']
                     feed_dict[self.inputs[1][n]] = examples['gt_boxes']
                     feed_dict[self.inputs[2][n]] = examples['gt_labels']
@@ -383,13 +388,17 @@ class trainner():
                     for k in range(len(cfg.FPN.ANCHOR_STRIDES)):
                         feed_dict[self.inputs[3][n][2*k]]=examples['anchor_labels_lvl{}'.format(k + 2)]
                         feed_dict[self.inputs[3][n][2*k+1]] = examples['anchor_boxes_lvl{}'.format(k + 2)]
-                        print(examples['anchor_labels_lvl{}'.format(k + 2)].shape)
+                        #print(examples['anchor_labels_lvl{}'.format(k + 2)].shape)
 
 
                 feed_dict[self.inputs[4]] = cfg.TRAIN.dropout
                 feed_dict[self.inputs[5]] = cfg.TRAIN.weight_decay_factor
                 feed_dict[self.inputs[6]] = True
-                _, total_loss_value, loc_loss_value, cla_loss_value,l2_loss_value,acc_value, learn_rate, = \
+
+                fetch_duration = time.time() - start_time
+
+                start_time = time.time()
+                _, total_loss_value,loss_value,l2_loss_value,lr_value = \
                     self.sess.run([*self.outputs],
                              feed_dict=feed_dict)
 
@@ -400,64 +409,63 @@ class trainner():
                     examples_per_sec = num_examples_per_step / duration
                     sec_per_batch = duration / cfg.TRAIN.num_gpu
 
+
+
+                    logger.info(loss_value)
                     format_str = ('epoch %d: iter %d, '
                                   'total_loss=%.6f '
-                                  'loc_loss=%.6f '
-                                  'cla_loss=%.6f '
                                   'l2_loss=%.6f '
-                                  'acc=%.6f '
-                                  'learn_rate =%e '
+                                  'learning rate =%e '
                                   '(%.1f examples/sec; %.3f sec/batch) '
                                   'fetch data time = %.6f'
                                   'run time = %.6f')
                     logger.info(format_str % (_epoch,
                                               self.ite_num,
                                               total_loss_value,
-                                              loc_loss_value,
-                                              cla_loss_value,
                                               l2_loss_value,
-                                              acc_value,
-                                              learn_rate,
+                                              lr_value,
                                               examples_per_sec,
                                               sec_per_batch,
                                               fetch_duration,
                                               run_duration))
 
-                if self.ite_num % 100 == 0:
-                    summary_str = self.sess.run(self.summary_op, feed_dict=feed_dict)
-                    self.summary_writer.add_summary(summary_str, self.ite_num)
+                #if self.ite_num % 100 == 0:
+                #    summary_str = self.sess.run(self.summary_op, feed_dict=feed_dict)
+                #    self.summary_writer.add_summary(summary_str, self.ite_num)
     def _val(self,val_ds,_epoch):
 
         all_total_loss=0
-        all_acc=0
         for step in range(cfg.TRAIN.val_iter):
-
-            example_images, example_labels, example_matches = next(val_ds)
-
-            ########show_flag check the data
 
             feed_dict = {}
             for n in range(cfg.TRAIN.num_gpu):
-                feed_dict[self.inputs[0][n]] = example_images[n * cfg.TRAIN.batch_size:(n + 1) * cfg.TRAIN.batch_size,
-                                               :, :, :]
-                feed_dict[self.inputs[1][n]] = example_labels[n * cfg.TRAIN.batch_size:(n + 1) * cfg.TRAIN.batch_size,
-                                               :, :]
-                feed_dict[self.inputs[2][n]] = example_matches[n * cfg.TRAIN.batch_size:(n + 1) * cfg.TRAIN.batch_size,
-                                               :]
-            feed_dict[self.inputs[3]] = 1.
-            feed_dict[self.inputs[4]] = 0.
-            feed_dict[self.inputs[5]] = False
 
-            _,total_loss_value, loc_loss_value, cla_loss_value, l2_loss_value,acc_value, learn_rate = \
-                self.sess.run([*self.val_outputs],
+                examples = next(val_ds)
+
+                feed_dict[self.inputs[0][n]] = examples['image']
+                feed_dict[self.inputs[1][n]] = examples['gt_boxes']
+                feed_dict[self.inputs[2][n]] = examples['gt_labels']
+
+                for k in range(len(cfg.FPN.ANCHOR_STRIDES)):
+                    feed_dict[self.inputs[3][n][2 * k]] = examples['anchor_labels_lvl{}'.format(k + 2)]
+                    feed_dict[self.inputs[3][n][2 * k + 1]] = examples['anchor_boxes_lvl{}'.format(k + 2)]
+                    # print(examples['anchor_labels_lvl{}'.format(k + 2)].shape)
+
+            feed_dict[self.inputs[4]] = cfg.TRAIN.dropout
+            feed_dict[self.inputs[5]] = cfg.TRAIN.weight_decay_factor
+            feed_dict[self.inputs[6]] = True
+
+            _, total_loss_value, loss_value, l2_loss_value, lr_value = \
+                self.sess.run([*self.outputs],
                               feed_dict=feed_dict)
 
             all_total_loss+=total_loss_value
-            all_acc+=acc_value
-        return all_total_loss/cfg.TRAIN.val_iter,all_acc/cfg.TRAIN.val_iter
+
+        return all_total_loss/cfg.TRAIN.val_iter
 
     def train(self):
         self.train_loop()
+
 
 
 
