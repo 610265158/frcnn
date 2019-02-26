@@ -110,9 +110,9 @@ def fastrcnn_outputs(scope_str,feature, num_classes,L2_reg,training=True,class_a
     with slim.arg_scope(arg_scope):
         with slim.arg_scope([slim.batch_norm], is_training=training):
             with tf.variable_scope(scope_str):
-                classification=slim.fully_connected(feature, num_classes,activation_fn=None,scope='class')
+                classification=slim.fully_connected(feature, num_classes,activation_fn=None,normalizer_fn=None,scope='class')
                 num_classes_for_box = 1 if class_agnostic_regression else num_classes
-                box_regression =slim.fully_connected(feature, num_classes_for_box * 4,activation_fn=None,scope='box')
+                box_regression =slim.fully_connected(feature, num_classes_for_box * 4,activation_fn=None,normalizer_fn=None,scope='box')
                 box_regression = tf.reshape(box_regression, (-1, num_classes_for_box, 4), name='output_box')
 
         return classification, box_regression

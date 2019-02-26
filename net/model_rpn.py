@@ -22,9 +22,9 @@ def rpn_head(scope_str,featuremap, channel, num_anchors,L2_reg,training):
                                   normalizer_fn=slim.batch_norm, scope='conv0')
 
                 label_logits =slim.conv2d(hidden, num_anchors, [1, 1], stride=1, activation_fn=None,
-                                  normalizer_fn=slim.batch_norm, scope='class')
+                                  normalizer_fn=None, scope='class')
                 box_logits = slim.conv2d(hidden, 4 * num_anchors, [1, 1], stride=1, activation_fn=None,
-                                  normalizer_fn=slim.batch_norm, scope='box')
+                                  normalizer_fn=None, scope='box')
                 label_logits = tf.transpose(label_logits, [0, 2, 3, 1])  # 1xfHxfWxNA
                 label_logits = tf.squeeze(label_logits, 0)  # fHxfWxNA
 

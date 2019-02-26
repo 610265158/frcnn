@@ -59,61 +59,71 @@ def get_data_set(root_path,ana_path):
 
 
 
-def _data_aug_fn(image, ground_truth,is_training=True):
+def _data_aug_fn(fname, ground_truth,is_training=True):
     """Data augmentation function."""
     ####customed here
+    try:
 
-    labels = ground_truth.split(' ')
-    boxes = []
-    for label in labels:
-        bbox = np.array(label.split(','), dtype=np.float)
-        ##the anchor need ymin,xmin,ymax,xmax
-        boxes.append([bbox[1], bbox[0], bbox[3], bbox[2]])
+        image = cv2.imread(fname, cv2.IMREAD_COLOR)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        labels = ground_truth.split(' ')
+        boxes = []
+        for label in labels:
+            bbox = np.array(label.split(','), dtype=np.float)
+            ##the anchor need ymin,xmin,ymax,xmax
+            boxes.append([bbox[1], bbox[0], bbox[3], bbox[2]])
 
-    boxes = np.array(boxes, dtype=np.float)
+        boxes = np.array(boxes, dtype=np.float)
 
-    ###clip the bbox for the reason that some bboxs are beyond the image
-    h_raw_limit, w_raw_limit, _ = image.shape
-    boxes[:, 3] = np.clip(boxes[:, 3], 0, w_raw_limit)
-    boxes[:, 2] = np.clip(boxes[:, 2], 0, h_raw_limit)
-    boxes[boxes < 0] = 0
-    #########random scale
-    ############## becareful with this func because there is a Infinite loop in its body
-    image, boxes=Random_scale_withbbox(image,boxes,target_shape=[cfg.MODEL.hin,cfg.MODEL.win],jitter=0.3)
+        ###clip the bbox for the reason that some bboxs are beyond the image
+        h_raw_limit, w_raw_limit, _ = image.shape
+        boxes[:, 3] = np.clip(boxes[:, 3], 0, w_raw_limit)
+        boxes[:, 2] = np.clip(boxes[:, 2], 0, h_raw_limit)
+        boxes[boxes < 0] = 0
+        #########random scale
+        ############## becareful with this func because there is a Infinite loop in its body
+        image, boxes=Random_scale_withbbox(image,boxes,target_shape=[cfg.MODEL.hin,cfg.MODEL.win],jitter=0.3)
 
-    if is_training:
-        if random.uniform(0, 1) > 0.5:
-            image, boxes =Random_flip(image, boxes)
-        image=Pixel_jitter(image,max_=15)
-        if random.uniform(0,1)>0.5:
-            image=Random_contrast(image)
-        if random.uniform(0,1)>0.5:
-            image=Random_brightness(image)
-        if random.uniform(0,1)>0.5:
-            a=[3,5,7]
-            k=random.sample(a, 1)[0]
-            image=Blur_aug(image,ksize=(k,k))
+        if is_training:
+            if random.uniform(0, 1) > 0.5:
+                image, boxes =Random_flip(image, boxes)
+            image=Pixel_jitter(image,max_=15)
+            if random.uniform(0,1)>0.5:
+                image=Random_contrast(image)
+            if random.uniform(0,1)>0.5:
+                image=Random_brightness(image)
+            if random.uniform(0,1)>0.5:
+                a=[3,5,7]
+                k=random.sample(a, 1)[0]
+                image=Blur_aug(image,ksize=(k,k))
 
-    boxes=np.clip(boxes,0,cfg.MODEL.hin)
-    # ###cove the small faces
-    # boxes_clean=[]
-    # for i in range(boxes.shape[0]):
-    #     box = boxes[i]
-    #
-    #     if (box[3]-box[1])*(box[2]-box[0])<cfg.DATA.cover_small_face:
-    #         image[int(box[0]):int(box[2]),int(box[1]):int(box[3]),:]=0
-    #     else:
-    #         boxes_clean.append(box)
-    boxes=np.array(boxes,dtype=np.float32)
-    boxes_refine=np.zeros_like(boxes)
-    boxes_refine[:,0]=boxes[:,1]
-    boxes_refine[:, 1] = boxes[:, 0]
-    boxes_refine[:, 2] = boxes[:, 3]
-    boxes_refine[:, 3] = boxes[:, 2]
+        boxes=np.clip(boxes,0,cfg.MODEL.hin)
+        # ###cove the small faces
+        # boxes_clean=[]
+        # for i in range(boxes.shape[0]):
+        #     box = boxes[i]
+        #
+        #     if (box[3]-box[1])*(box[2]-box[0])<cfg.DATA.cover_small_face:
+        #         image[int(box[0]):int(box[2]),int(box[1]):int(box[3]),:]=0
+        #     else:
+        #         boxes_clean.append(box)
+        boxes=np.array(boxes,dtype=np.float32)
+        boxes_refine=np.zeros_like(boxes)
+        boxes_refine[:,0]=boxes[:,1]
+        boxes_refine[:, 1] = boxes[:, 0]
+        boxes_refine[:, 2] = boxes[:, 3]
+        boxes_refine[:, 3] = boxes[:, 2]
 
-    image = image.astype(np.float32)/255.
-    crowd=np.zeros(shape=[boxes_refine.shape[0]])
-    klass=np.ones(shape=[boxes_refine.shape[0]])
+        image = image.astype(np.float32)/255.
+        crowd=np.zeros(shape=[boxes_refine.shape[0]])
+        klass=np.ones(shape=[boxes_refine.shape[0]])
+
+    except:
+        logger.warn('there is an err with %s' % fname)
+        image = np.zeros(shape=(cfg.MODEL.hin, cfg.MODEL.win, 3), dtype=np.float32)
+        boxes_refine = np.array([[0, 0, 100, 100]])
+        klass = np.array([1])
+        crowd = np.array([0])
     ret =prepare_data(image,boxes_refine,klass,crowd)
     return ret
 
@@ -154,11 +164,16 @@ def prepare_data(image,boxes,klass,is_crowd=0):
     return ret
 def _map_fn(dp,is_training=True):
     fname, annos = dp
-    image = cv2.imread(fname, cv2.IMREAD_COLOR)
-    image=cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    ret=_data_aug_fn(image,annos,is_training)
+    ret=_data_aug_fn(fname,annos,is_training)
     return ret
 
 
+if __name__=='__main__':
+    image = np.zeros(shape=(cfg.MODEL.hin, cfg.MODEL.win, 3), dtype=np.float32)
+    boxes_refine = np.array([[0,0,100,100]])
+    klass = np.array([1])
+    crowd = np.array([0])
+    multilevel_anchor_inputs=get_multilevel_rpn_anchor_input(image, boxes_refine, crowd)
+    print()
 
 

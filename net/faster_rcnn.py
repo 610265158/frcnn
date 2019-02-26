@@ -109,20 +109,19 @@ def rpn(image, features, inputs,L2_reg,is_training,python_training=cfg.MODEL.mod
         inputs[tower_str+'/anchor_labels_lvl{}'.format(i + 2)],
         inputs[tower_str+'/anchor_boxes_lvl{}'.format(i + 2)]) for i in range(len(all_anchors_fpn))]
 
-
     slice_feature_and_anchors(features, multilevel_anchors)
 
     # Multi-Level RPN Proposals
     rpn_outputs = [rpn_head('rpn%d'%i, pi, cfg.FPN.NUM_CHANNEL, len(cfg.RPN.ANCHOR_RATIOS),L2_reg,is_training)
                    for i,pi in enumerate(features)]
-
+    print('rpn_outputs',rpn_outputs)
     multilevel_label_logits = [k[0] for k in rpn_outputs]
     multilevel_box_logits = [k[1] for k in rpn_outputs]
     multilevel_pred_boxes = [anchor.decode_logits(logits)
                              for anchor, logits in zip(multilevel_anchors, multilevel_box_logits)]
 
 
-
+    print('multilevel_pred_boxes',multilevel_pred_boxes)
     proposal_boxes, proposal_scores = generate_fpn_proposals(
         multilevel_pred_boxes, multilevel_label_logits, image_shape2d,python_training)
 
@@ -132,7 +131,7 @@ def rpn(image, features, inputs,L2_reg,is_training,python_training=cfg.MODEL.mod
         losses = multilevel_rpn_losses(
             multilevel_anchors, multilevel_label_logits, multilevel_box_logits)
     else:
-        losses = []
+        losses = [1.,1.]
 
     return BoxProposals(proposal_boxes), losses
 
@@ -201,9 +200,9 @@ def roi_heads( image, features, proposals, targets,L2_reg,is_training,python_tra
         final_boxes, final_scores, final_labels = fastrcnn_predictions(
             decoded_boxes, label_scores, name_scope='output')
 
-        final_boxes=tf.identity(final_boxes,name='boxes')
-        final_scores = tf.identity(final_scores, name='scores')
-
+        final_boxes=tf.identity(final_boxes,name='out_boxes')
+        final_scores = tf.identity(final_scores, name='out_scores')
+        final_labels= tf.identity(final_labels, name='out_labels')
         return all_losses
     else:
         decoded_boxes = fastrcnn_head.decoded_output_boxes()
@@ -220,7 +219,7 @@ def roi_heads( image, features, proposals, targets,L2_reg,is_training,python_tra
         #     indices = tf.stack([tf.range(tf.size(final_labels)), tf.cast(final_labels, tf.int32) - 1], axis=1)
         #     final_mask_logits = tf.gather_nd(mask_logits, indices)   # #resultx28x28
         #     tf.sigmoid(final_mask_logits, name='output/masks')
-        return []
+        return [1.,1.]
 
 
 def preprocess( image):

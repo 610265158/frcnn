@@ -115,9 +115,9 @@ class trainner():
     def make_data(self, ds,is_training=True):
 
         if is_training:
-            ds = MultiThreadMapData(ds, 15, self.train_map_func, buffer_size=1000, strict=True)
+            ds = MultiThreadMapData(ds, 10, self.train_map_func, buffer_size=200, strict=True)
         else:
-            ds = MultiThreadMapData(ds, 15, self.val_map_func, buffer_size=1000, strict=True)
+            ds = MultiThreadMapData(ds, 10, self.val_map_func, buffer_size=200, strict=True)
         #ds = BatchData(ds, cfg.TRAIN.num_gpu * cfg.TRAIN.batch_size, remainder=True,use_list=False)
         #ds = PrefetchDataZMQ(ds, 2)
         ds = PrefetchOnGPUs(ds,[0])
@@ -188,8 +188,8 @@ class trainner():
                             with slim.arg_scope([slim.model_variable, slim.variable], device='/cpu:0'):
 
                                 images_ = tf.placeholder(tf.float32, [512, 512, 3], name="images")
-                                boxes_ = tf.placeholder(tf.float32, [None,4],name="labels")
-                                labels_ = tf.placeholder(tf.int64, [None], name="labels")
+                                boxes_ = tf.placeholder(tf.float32, [None,4],name="input_boxes")
+                                labels_ = tf.placeholder(tf.int64, [None], name="input_labels")
                                 ###total anchor
                                 total_anchor = []
                                 num_anchors = len(cfg.RPN.ANCHOR_RATIOS)
@@ -231,7 +231,6 @@ class trainner():
 
                                 # Retain the summaries from the final tower.
                                 summaries = tf.get_collection(tf.GraphKeys.SUMMARIES, scope)
-
                                 # Calculate the gradients for the batch of data on this CIFAR tower.
                                 grads = opt.compute_gradients(total_loss)
 
@@ -294,8 +293,18 @@ class trainner():
             self.sess = tf.Session(config=tf_config)
             self.sess.run(init)
 
-            if cfg.MODEL.pretrained_model is not None:
+            #if cfg.MODEL.pretrained_model is not None:
                 #########################restore the params
+            #    variables_restore = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,scope=cfg.MODEL.net_structure)
+            #    print(variables_restore)
+            #    print('......................................................')
+            #    # saver2 = tf.train.Saver(variables_restore)
+            #    variables_restore_n = [v for v in variables_restore if
+            #                           'logits' not in v.name]  # Conv2d_1c_1x1 Bottleneck
+            #    # print(variables_restore_n)
+            #    saver2 = tf.train.Saver(variables_restore_n)
+            #    saver2.restore(self.sess, cfg.MODEL.pretrained_model)
+            if not cfg.MODEL.mode:
                 variables_restore = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
                 print(variables_restore)
                 print('......................................................')
@@ -306,6 +315,7 @@ class trainner():
                 saver2 = tf.train.Saver(variables_restore_n)
                 saver2.restore(self.sess, cfg.MODEL.pretrained_model)
 
+                saver2.save(self.sess, save_path='./model/inference.ckpt')
             #self.coord = tf.train.Coordinator()
             # Start the queue runners.
             # self.threads = tf.train.start_queue_runners(sess=self.sess, coord=self.coord)

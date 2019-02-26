@@ -5,7 +5,7 @@ import numpy as np
 from easydict import EasyDict as edict
 
 config = edict()
-os.environ["CUDA_VISIBLE_DEVICES"] = "2,4"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2,3"
 
 config.TRAIN = edict()
 config.TRAIN.num_gpu = 2
@@ -95,6 +95,5 @@ config.MODEL.MODE_FPN = True
 config.MODEL.model_path = './model/'  # save directory
 config.MODEL.hin = 512  # input size during training , 240
 config.MODEL.win = 512
-config.MODEL.out_channel=132+3
-config.MODEL.net_structure='resnet_v2_50' ######'InceptionResnetV2,resnet_v2_50
-config.MODEL.pretrained_model=None
+config.MODEL.net_structure='resnet_v1_50' ######'InceptionResnetV2,resnet_v2_50
+config.MODEL.pretrained_model='./model/epoch_0L2_1e-07val_loss0.14797164916992187.ckpt'#None#'resnet_v1_50.ckpt'

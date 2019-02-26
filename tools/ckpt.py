@@ -24,7 +24,7 @@ else:
 if not tf.gfile.Exists(MODEL_DIR):  # 创建目录
     tf.gfile.MakeDirs(MODEL_DIR)
 
-output_node_names = "lztower_0/images,lztower_0/boxes,lztower_0/scores,training_flag"  # 原模型输出操作节点的名字
+output_node_names = "lztower_0/images,lztower_0/output/boxes,lztower_0/output/scores,lztower_0/output/labels,training_flag"  # 原模型输出操作节点的名字
 
 
 # In[2]:
