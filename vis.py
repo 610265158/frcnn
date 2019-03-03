@@ -5,7 +5,7 @@ import numpy as np
 from api.frcnn_detector import FrcnnDetector
 from tools.to_lableimg import to_xml
 from tools.to_labelme import to_json
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 detector = FrcnnDetector('./model/detector.pb')
 
 import os
@@ -25,7 +25,7 @@ def GetFileList(dir, fileList):
 
 def faceboxes_with_landmark():
     count = 0
-    data_dir = '../coco_data/facebox/our'
+    data_dir = '/home/zi.liang/coco_data/human_attr/daily'
 
     pics = []
     GetFileList(data_dir,pics)
@@ -41,8 +41,8 @@ def faceboxes_with_landmark():
 
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         star=time.time()
-        boxes,scores,labels=detector(img,0.1)
-        print('one iamge cost %f s'%(time.time()-star))
+        boxes,scores,labels=detector(img,0.3)
+        #print('one iamge cost %f s'%(time.time()-star))
         #print(boxes.shape)
         #print(boxes)  
         ################toxml or json

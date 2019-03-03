@@ -10,8 +10,8 @@ from tensorpack.tfutils.scope_utils import under_name_scope
 from tensorpack.tfutils.summary import add_moving_summary
 from tensorpack.utils.argtools import memoized_method
 
-from net.basemodel import GroupNorm
-from net.config import config as cfg
+#from net.config import config as cfg
+from train_config import config as cfg
 from net.model_box import decode_bbox_target, encode_bbox_target
 from net.utils.box_ops import pairwise_iou
 
@@ -268,6 +268,34 @@ def fastrcnn_predictions(boxes, scores):
 FastRCNN heads for FPN:
 """
 
+
+##light head fature
+# def fastrcnn_2fc_head(scope_str,feature,L2_reg,training):
+#     """
+#     Args:
+#         feature (any shape):
+#
+#     Returns:
+#         2D head feature
+#     """
+#     dim = cfg.FPN.LIGHT_FRCNN_FC_HEAD_DIM
+#
+#     import tensorflow.contrib.slim as slim
+#     from net.faster_rcnn import fasterrcnn_arg_scope
+#     arg_scope = fasterrcnn_arg_scope(weight_decay=L2_reg)
+#     with slim.arg_scope(arg_scope):
+#         with slim.arg_scope([slim.batch_norm], is_training=training):
+#             with tf.variable_scope(scope_str):
+#                 hidden=slim.conv2d(feature, dim, [3, 3], stride=1, activation_fn=tf.nn.relu,
+#                             normalizer_fn=slim.batch_norm, scope='conv0')
+#                 hidden = slim.conv2d(hidden, dim, [3, 3], stride=1, activation_fn=tf.nn.relu,
+#                                      normalizer_fn=slim.batch_norm, scope='conv1')
+#                 hidden=tf.reduce_mean(hidden,axis=[2,3],keep_dims=True)
+#                 #hidden=tf.squeeze(hidden,axis=[2,3])
+#                 hidden=slim.flatten(hidden)
+#     return hidden
+
+####norm one lz
 def fastrcnn_2fc_head(scope_str,feature,L2_reg,training):
     """
     Args:
@@ -285,9 +313,7 @@ def fastrcnn_2fc_head(scope_str,feature,L2_reg,training):
         with slim.arg_scope([slim.batch_norm], is_training=training):
             with tf.variable_scope(scope_str):
                 feature=slim.flatten(feature)
-
                 hidden = slim.fully_connected(feature, dim, activation_fn=tf.nn.relu, scope='fc6',trainable=True)
-                hidden = slim.fully_connected(hidden, dim, activation_fn=tf.nn.relu, scope='fc7',trainable=True)
 
     return hidden
 
@@ -320,32 +346,6 @@ def fastrcnn_2fc_head_(scope_str,feature,L2_reg,training):
 
     return hidden
 
-
-@layer_register(log_shape=True)
-def fastrcnn_Xconv1fc_head(feature, num_convs, norm=None):
-    """
-    Args:
-        feature (NCHW):
-        num_classes(int): num_category + 1
-        num_convs (int): number of conv layers
-        norm (str or None): either None or 'GN'
-
-    Returns:
-        2D head feature
-    """
-    assert norm in [None, 'GN'], norm
-    l = feature
-    with argscope(Conv2D, data_format='channels_first',
-                  kernel_initializer=tf.variance_scaling_initializer(
-                      scale=2.0, mode='fan_out',
-                      distribution='untruncated_normal' if get_tf_version_tuple() >= (1, 12) else 'normal')):
-        for k in range(num_convs):
-            l = Conv2D('conv{}'.format(k), l, cfg.FPN.FRCNN_CONV_HEAD_DIM, 3, activation=tf.nn.relu)
-            if norm is not None:
-                l = GroupNorm('gn{}'.format(k), l)
-        l = FullyConnected('fc', l, cfg.FPN.FRCNN_FC_HEAD_DIM,
-                           kernel_initializer=tf.variance_scaling_initializer(), activation=tf.nn.relu)
-    return l
 
 
 def fastrcnn_4conv1fc_head(*args, **kwargs):

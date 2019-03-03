@@ -115,9 +115,9 @@ class trainner():
     def make_data(self, ds,is_training=True):
 
         if is_training:
-            ds = MultiThreadMapData(ds, 10, self.train_map_func, buffer_size=200, strict=True)
+            ds = MultiThreadMapData(ds, 10, self.train_map_func, buffer_size=100, strict=True)
         else:
-            ds = MultiThreadMapData(ds, 10, self.val_map_func, buffer_size=200, strict=True)
+            ds = MultiThreadMapData(ds, 10, self.val_map_func, buffer_size=100, strict=True)
         #ds = BatchData(ds, cfg.TRAIN.num_gpu * cfg.TRAIN.batch_size, remainder=True,use_list=False)
         #ds = PrefetchDataZMQ(ds, 2)
         ds = PrefetchOnGPUs(ds,[0])
@@ -152,7 +152,7 @@ class trainner():
             # Decay the learning rate exponentially based on the number of steps.
             lr = tf.train.exponential_decay(cfg.TRAIN.lr_init,
                                             global_step,
-                                            cfg.TRAIN.lr_decay_every_step//cfg.TRAIN.num_gpu,
+                                            cfg.TRAIN.lr_decay_every_step,
                                             decay_rate=cfg.TRAIN.lr_decay_factor,
                                             staircase=True)
 
@@ -164,7 +164,7 @@ class trainner():
 
 
 
-
+            total_loss_show=0.
             images_place_holder_list = []
             labels_place_holder_list = []
             boxes_place_holder_list = []
@@ -187,7 +187,7 @@ class trainner():
                         with tf.name_scope('lztower_%d' % (i)) as scope:
                             with slim.arg_scope([slim.model_variable, slim.variable], device='/cpu:0'):
 
-                                images_ = tf.placeholder(tf.float32, [512, 512, 3], name="images")
+                                images_ = tf.placeholder(tf.float32, [cfg.DATA.hin,cfg.DATA.win, 3], name="images")
                                 boxes_ = tf.placeholder(tf.float32, [None,4],name="input_boxes")
                                 labels_ = tf.placeholder(tf.int64, [None], name="input_labels")
                                 ###total anchor
@@ -219,7 +219,7 @@ class trainner():
                                        total_loss = tf.add_n([ *loss,l2_loss])
                                    else:
                                        total_loss = tf.add_n([ *loss])
-
+                                total_loss_show+=total_loss
                                 # Reuse variables for the next tower.
                                 tf.get_variable_scope().reuse_variables()
 
@@ -270,8 +270,8 @@ class trainner():
                 train_op = tf.group(apply_gradient_op, *bn_update_ops)
 
             self.inputs=[images_place_holder_list,boxes_place_holder_list,labels_place_holder_list,anchors_place_holder_list,keep_prob,L2_reg,training]
-            self.outputs=[train_op,total_loss,loss,l2_loss,lr ]
-            self.val_outputs=[grads,total_loss,loss,l2_loss,lr ]
+            self.outputs=[train_op,total_loss_show,loss,l2_loss,lr ]
+            self.val_outputs=[grads,total_loss_show,loss,l2_loss,lr ]
             # Create a saver.
             self.saver = tf.train.Saver(tf.global_variables(), max_to_keep=None)
 
@@ -293,17 +293,17 @@ class trainner():
             self.sess = tf.Session(config=tf_config)
             self.sess.run(init)
 
-            #if cfg.MODEL.pretrained_model is not None:
+            if cfg.MODEL.pretrained_model is not None:
                 #########################restore the params
-            #    variables_restore = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,scope=cfg.MODEL.net_structure)
-            #    print(variables_restore)
+                variables_restore = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,scope=cfg.MODEL.net_structure)
+                print(variables_restore)
             #    print('......................................................')
             #    # saver2 = tf.train.Saver(variables_restore)
-            #    variables_restore_n = [v for v in variables_restore if
-            #                           'logits' not in v.name]  # Conv2d_1c_1x1 Bottleneck
-            #    # print(variables_restore_n)
-            #    saver2 = tf.train.Saver(variables_restore_n)
-            #    saver2.restore(self.sess, cfg.MODEL.pretrained_model)
+                variables_restore_n = [v for v in variables_restore if
+                                       'logits' not in v.name]  # Conv2d_1c_1x1 Bottleneck
+                # print(variables_restore_n)
+                saver2 = tf.train.Saver(variables_restore_n)
+                saver2.restore(self.sess, cfg.MODEL.pretrained_model)
             if not cfg.MODEL.mode:
                 variables_restore = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
                 print(variables_restore)

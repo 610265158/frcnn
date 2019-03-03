@@ -82,7 +82,7 @@ def _data_aug_fn(fname, ground_truth,is_training=True):
         boxes[boxes < 0] = 0
         #########random scale
         ############## becareful with this func because there is a Infinite loop in its body
-        image, boxes=Random_scale_withbbox(image,boxes,target_shape=[cfg.MODEL.hin,cfg.MODEL.win],jitter=0.3)
+        image, boxes=Random_scale_withbbox(image,boxes,target_shape=[cfg.DATA.hin,cfg.DATA.win],jitter=0.3)
 
         if is_training:
             if random.uniform(0, 1) > 0.5:
@@ -97,7 +97,7 @@ def _data_aug_fn(fname, ground_truth,is_training=True):
                 k=random.sample(a, 1)[0]
                 image=Blur_aug(image,ksize=(k,k))
 
-        boxes=np.clip(boxes,0,cfg.MODEL.hin)
+        boxes=np.clip(boxes,0,cfg.DATA.hin)
         # ###cove the small faces
         # boxes_clean=[]
         # for i in range(boxes.shape[0]):
@@ -114,13 +114,13 @@ def _data_aug_fn(fname, ground_truth,is_training=True):
         boxes_refine[:, 2] = boxes[:, 3]
         boxes_refine[:, 3] = boxes[:, 2]
 
-        image = image.astype(np.float32)/255.
+        #image = image.astype(np.float32)/255.
         crowd=np.zeros(shape=[boxes_refine.shape[0]])
         klass=np.ones(shape=[boxes_refine.shape[0]])
 
     except:
         logger.warn('there is an err with %s' % fname)
-        image = np.zeros(shape=(cfg.MODEL.hin, cfg.MODEL.win, 3), dtype=np.float32)
+        image = np.zeros(shape=(cfg.DATA.hin, cfg.DATA.win, 3), dtype=np.float32)
         boxes_refine = np.array([[0, 0, 100, 100]])
         klass = np.array([1])
         crowd = np.array([0])
@@ -133,7 +133,7 @@ def prepare_data(image,boxes,klass,is_crowd=0):
     boxes = np.copy(boxes)
     im = image
     assert im is not None
-    # im = im.astype('float32')
+    im = im.astype('float32')
     # assume floatbox as input
     assert boxes.dtype == np.float32, "Loader has to return floating point boxes!"
 
@@ -169,7 +169,7 @@ def _map_fn(dp,is_training=True):
 
 
 if __name__=='__main__':
-    image = np.zeros(shape=(cfg.MODEL.hin, cfg.MODEL.win, 3), dtype=np.float32)
+    image = np.zeros(shape=(cfg.DATA.hin, cfg.DATA.win, 3), dtype=np.float32)
     boxes_refine = np.array([[0,0,100,100]])
     klass = np.array([1])
     crowd = np.array([0])

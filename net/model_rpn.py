@@ -7,7 +7,8 @@ from tensorpack.tfutils.argscope import argscope
 from tensorpack.tfutils.scope_utils import auto_reuse_variable_scope, under_name_scope
 from tensorpack.tfutils.summary import add_moving_summary
 
-from net.config import config as cfg
+#from net.config import config as cfg
+from train_config import config as cfg
 from net.model_box import clip_boxes
 
 

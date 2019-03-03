@@ -1,15 +1,13 @@
 #-*-coding:utf-8-*-
 import tensorflow as tf
-
+import numpy as np
 
 from train_config import config as cfg
 
 
 import net.model_frcnn as model_frcnn
 
-from net.model_cascade import CascadeRCNNHead
-from net.basemodel import image_preprocess, resnet_c4_backbone, resnet_conv5, resnet_fpn_backbone
-from net.model_fpn import fpn_model, generate_fpn_proposals, multilevel_roi_align, multilevel_rpn_losses
+from net.model_fpn import  generate_fpn_proposals, multilevel_roi_align, multilevel_rpn_losses
 from net.data import get_all_anchors, get_all_anchors_fpn
 from net.model_box import RPNAnchors, clip_boxes, crop_and_resize, roi_align
 from net.model_rpn import generate_rpn_proposals, rpn_head, rpn_losses
@@ -76,7 +74,7 @@ def fasterrcnn_arg_scope(weight_decay=0.00001,
 
 
 def backbone(image,L2_reg,is_training):
-    from net.resnet.backbone import plain_resnet50_backbone
+    from net.resnet_cp.backbone import plain_resnet50_backbone
     p23456=plain_resnet50_backbone(image,L2_reg,is_training)
     return p23456
 
@@ -152,57 +150,26 @@ def roi_heads( image, features, proposals, targets,L2_reg,is_training,python_tra
 
         head_feature = fastrcnn_head_func('fastrcnn', roi_feature_fastrcnn,L2_reg,is_training)
 
-
-
-
         fastrcnn_label_logits, fastrcnn_box_logits = fastrcnn_outputs(
             'fastrcnn/outputs', head_feature, cfg.DATA.NUM_CLASS,L2_reg,is_training)
-
 
         fastrcnn_head = FastRCNNHead(proposals, fastrcnn_box_logits, fastrcnn_label_logits,
                                      gt_boxes, tf.constant(cfg.FRCNN.BBOX_REG_WEIGHTS, dtype=tf.float32))
 
 
-    else:
-        def roi_func(boxes):
-            return multilevel_roi_align(features[:4], boxes, 7)
-
-        fastrcnn_head = CascadeRCNNHead(
-            proposals, roi_func, fastrcnn_head_func,
-            (gt_boxes, gt_labels), image_shape2d, cfg.DATA.NUM_CLASS)
 
     if python_training:
-        all_losses = fastrcnn_head.losses()
-
-        # if cfg.MODE_MASK:
-        #     gt_masks = targets[2]
-        #     # maskrcnn loss
-        #     roi_feature_maskrcnn = multilevel_roi_align(
-        #         features[:4], proposals.fg_boxes(), 14,
-        #         name_scope='multilevel_roi_align_mask')
-        #     maskrcnn_head_func = getattr(model_mrcnn, cfg.FPN.MRCNN_HEAD_FUNC)
-        #     mask_logits = maskrcnn_head_func(
-        #         'maskrcnn', roi_feature_maskrcnn, cfg.DATA.NUM_CATEGORY)   # #fg x #cat x 28 x 28
-        #
-        #     target_masks_for_fg = crop_and_resize(
-        #         tf.expand_dims(gt_masks, 1),
-        #         proposals.fg_boxes(),
-        #         proposals.fg_inds_wrt_gt, 28,
-        #         pad_border=False)  # fg x 1x28x28
-        #     target_masks_for_fg = tf.squeeze(target_masks_for_fg, 1, 'sampled_fg_mask_targets')
-        #     all_losses.append(maskrcnn_loss(mask_logits, proposals.fg_labels(), target_masks_for_fg))
 
 
-                ###add predict nms here
+
+        all_losses = fastrcnn_head.losses()       ###add predict nms here
+
         decoded_boxes = fastrcnn_head.decoded_output_boxes()
         decoded_boxes = clip_boxes(decoded_boxes, image_shape2d, name='fastrcnn_all_boxes')
         label_scores = fastrcnn_head.output_scores(name='fastrcnn_all_scores')
         final_boxes, final_scores, final_labels = fastrcnn_predictions(
             decoded_boxes, label_scores, name_scope='output')
 
-        final_boxes=tf.identity(final_boxes,name='out_boxes')
-        final_scores = tf.identity(final_scores, name='out_scores')
-        final_labels= tf.identity(final_labels, name='out_labels')
         return all_losses
     else:
         decoded_boxes = fastrcnn_head.decoded_output_boxes()
@@ -222,19 +189,34 @@ def roi_heads( image, features, proposals, targets,L2_reg,is_training,python_tra
         return [1.,1.]
 
 
+
 def preprocess( image):
     image = tf.expand_dims(image, 0)
-    #image = image_preprocess(image, bgr=True)
+    with tf.name_scope('image_preprocess'):
+        if image.dtype.base_dtype != tf.float32:
+            image = tf.cast(image, tf.float32)
+
+        mean = cfg.DATA.PIXEL_MEAN
+        std = np.asarray(cfg.DATA.PIXEL_STD)
+
+        image_mean = tf.constant(mean, dtype=tf.float32)
+        image_invstd = tf.constant(1.0 / std, dtype=tf.float32)
+        image = (image - image_mean) * image_invstd
+
     return tf.transpose(image, [0, 3, 1, 2])
+
+
 def faster_rcnn( inputs,L2_reg=0.00001,is_training=True):
-    from net.config import finalize_configs
-    finalize_configs(True)
+    #from net.config import finalize_configs
+    #finalize_configs(True)
 
     anchor_inputs = {k: v for k, v in inputs.items() if 'anchor_' in k}
 
     image = preprocess(inputs['images'])  # 1CHW
     features = backbone(image,L2_reg,is_training)
 
+
+    print('backbone',features)
     proposals, rpn_losses = rpn(image, features, anchor_inputs,L2_reg,is_training)  # inputs?
 
     targets = [inputs[k] for k in ['gt_boxes', 'gt_labels', 'gt_masks'] if k in inputs]

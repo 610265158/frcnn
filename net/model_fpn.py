@@ -10,60 +10,13 @@ from tensorpack.tfutils.scope_utils import under_name_scope
 from tensorpack.tfutils.summary import add_moving_summary
 from tensorpack.tfutils.tower import get_current_tower_context
 
-from net.basemodel import GroupNorm
-from net.config import config as cfg
+#from net.config import config as cfg
+from train_config import config as cfg
 from net.model_box import roi_align
 from net.model_rpn import generate_rpn_proposals, rpn_losses
 from net.utils.box_ops import area as tf_area
 
 
-@layer_register(log_shape=True)
-def fpn_model(features):
-    """
-    Args:
-        features ([tf.Tensor]): ResNet features c2-c5
-
-    Returns:
-        [tf.Tensor]: FPN features p2-p6
-    """
-    assert len(features) == 4, features
-    num_channel = cfg.FPN.NUM_CHANNEL
-
-    use_gn = cfg.FPN.NORM == 'GN'
-
-    def upsample2x(name, x):
-        return FixedUnPooling(
-            name, x, 2, unpool_mat=np.ones((2, 2), dtype='float32'),
-            data_format='channels_first')
-
-        # tf.image.resize is, again, not aligned.
-        # with tf.name_scope(name):
-        #     shape2d = tf.shape(x)[2:]
-        #     x = tf.transpose(x, [0, 2, 3, 1])
-        #     x = tf.image.resize_nearest_neighbor(x, shape2d * 2, align_corners=True)
-        #     x = tf.transpose(x, [0, 3, 1, 2])
-        #     return x
-
-    with argscope(Conv2D, data_format='channels_first',
-                  activation=tf.identity, use_bias=True,
-                  kernel_initializer=tf.variance_scaling_initializer(scale=1.)):
-        lat_2345 = [Conv2D('lateral_1x1_c{}'.format(i + 2), c, num_channel, 1)
-                    for i, c in enumerate(features)]
-        if use_gn:
-            lat_2345 = [GroupNorm('gn_c{}'.format(i + 2), c) for i, c in enumerate(lat_2345)]
-        lat_sum_5432 = []
-        for idx, lat in enumerate(lat_2345[::-1]):
-            if idx == 0:
-                lat_sum_5432.append(lat)
-            else:
-                lat = lat + upsample2x('upsample_lat{}'.format(6 - idx), lat_sum_5432[-1])
-                lat_sum_5432.append(lat)
-        p2345 = [Conv2D('posthoc_3x3_p{}'.format(i + 2), c, num_channel, 3)
-                 for i, c in enumerate(lat_sum_5432[::-1])]
-        if use_gn:
-            p2345 = [GroupNorm('gn_p{}'.format(i + 2), c) for i, c in enumerate(p2345)]
-        p6 = MaxPooling('maxpool_p6', p2345[-1], pool_size=1, strides=2, data_format='channels_first', padding='VALID')
-        return p2345 + [p6]
 
 
 @under_name_scope()

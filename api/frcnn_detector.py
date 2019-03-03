@@ -43,21 +43,25 @@ class FrcnnDetector:
         h, w, _ = image_fornet.shape
         image_fornet=cv2.resize(image_fornet,(self.input_size,self.input_size))
 
-        image_fornet=image_fornet/255.
+        #image_fornet=image_fornet/255.
         start = time.time()
-        boxes, scores,labels = self._sess.run(
-            self.output_ops, feed_dict={self.input_image: image_fornet,self.training:True}
-        )
-        print('frcnn detect cost', time.time() - start)
+        for i in range(10):
+            boxes, scores,labels = self._sess.run(
+                self.output_ops, feed_dict={self.input_image: image_fornet,self.training:False}
+            )
+        print('facebox detect cost', time.time() - start)
 
         to_keep = scores > score_threshold
         boxes = boxes[to_keep]
         scores = scores[to_keep]
-
+        labels = labels[to_keep]
         ###recorver to raw image
         scaler = np.array([w,h,w,h], dtype='float32')/self.input_size
         boxes = boxes * scaler
         boxes =boxes-np.array([shift_x, shift_y, shift_x, shift_y], dtype='float32')
+
+        #for i in range(boxes.shape[0]):
+        #    boxes[i] = np.array([boxes[i][1], boxes[i][0], boxes[i][3],boxes[i][2]])  #####the faceboxe produce ymin,xmin,ymax,xmax
 
 
         return boxes, scores,labels

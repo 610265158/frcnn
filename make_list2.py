@@ -15,7 +15,7 @@ def GetFileList(dir, fileList):
             newDir=os.path.join(dir,s)
             GetFileList(newDir, fileList)
     return fileList
-data_dir='../coco_data/facebox/our'
+data_dir='/home/lz/fddb/annotations'
 
 
 pic_list=[]
@@ -38,8 +38,8 @@ for _json in train_list:
     content=json.load(open(_json,'r'))
 
     tmp_str=''
-    #image_path =os.path.join(_json.rsplit('/',1)[0].replace('annotations','images'),content['filename'].rsplit('/',1)[-1])
-    image_path =os.path.join(_json.rsplit('/',1)[0],content['filename'].rsplit('/',1)[-1])
+    image_path =os.path.join(_json.rsplit('/',1)[0].replace('annotations','images'),content['filename'].rsplit('/',1)[-1])
+    #image_path =os.path.join(_json.rsplit('/',1)[0],content['filename'].rsplit('/',1)[-1])
     tmp_str=image_path+'|'
     bboxes=content['object']
     if len(bboxes)>0:
@@ -58,7 +58,8 @@ for _json in val_list:
 
     content=json.load(open(_json,'r'))
     tmp_str=''
-    image_path =os.path.join(_json.rsplit('/',1)[0],content['filename'].rsplit('/',1)[-1])
+    image_path = os.path.join(_json.rsplit('/', 1)[0].replace('annotations', 'images'),
+                              content['filename'].rsplit('/', 1)[-1])
     tmp_str=image_path+'|'
     bboxes=content['object']
     if len(bboxes) > 0:

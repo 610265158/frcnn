@@ -7,7 +7,8 @@ import tensorflow as tf
 
 from tensorpack.tfutils.scope_utils import under_name_scope
 
-from net.config import config
+#from net.config import config
+from train_config import config
 
 
 @under_name_scope()
@@ -43,7 +44,7 @@ def decode_bbox_target(box_predictions, anchors):
     waha = anchors_x2y2 - anchors_x1y1
     xaya = (anchors_x2y2 + anchors_x1y1) * 0.5
 
-    clip = np.log(config.PREPROC.MAX_SIZE / 16.)
+    clip = np.log(config.DATA.MAX_SIZE / 16.)
     wbhb = tf.exp(tf.minimum(box_pred_twth, clip)) * waha
     xbyb = box_pred_txty * waha + xaya
     x1y1 = xbyb - wbhb * 0.5

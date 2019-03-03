@@ -15,8 +15,8 @@ from tensorpack.utils.argtools import log_once, memoized
 from net.common import (
     CustomResize, DataFromListOfDict, box_to_point8,
     filter_boxes_inside_shape, point8_to_box, segmentation_to_mask, np_iou)
-from net.config import config as cfg
-from net.dataset import DetectionDataset
+#from net.config import config as cfg
+from train_config import config as cfg
 from net.utils.generate_anchors import generate_anchors
 from net.utils.np_box_ops import area as np_area, ioa as np_ioa
 
@@ -26,27 +26,6 @@ from net.utils.np_box_ops import area as np_area, ioa as np_ioa
 class MalformedData(BaseException):
     pass
 
-
-def print_class_histogram(roidbs):
-    """
-    Args:
-        roidbs (list[dict]): the same format as the output of `load_training_roidbs`.
-    """
-    dataset = DetectionDataset()
-    hist_bins = np.arange(dataset.num_classes + 1)
-
-    # Histogram of ground-truth objects
-    gt_hist = np.zeros((dataset.num_classes,), dtype=np.int)
-    for entry in roidbs:
-        # filter crowd?
-        gt_inds = np.where(
-            (entry['class'] > 0) & (entry['is_crowd'] == 0))[0]
-        gt_classes = entry['class'][gt_inds]
-        gt_hist += np.histogram(gt_classes, bins=hist_bins)[0]
-    data = [[dataset.class_names[i], v] for i, v in enumerate(gt_hist)]
-    data.append(['total', sum([x[1] for x in data])])
-    table = tabulate(data, headers=['class', '#box'], tablefmt='pipe')
-    logger.info("Ground-Truth Boxes:\n" + colored(table, 'cyan'))
 
 
 @memoized
@@ -76,7 +55,7 @@ def get_all_anchors(stride=None, sizes=None):
     # anchors are intbox here.
     # anchors at featuremap [0,0] are centered at fpcoor (8,8) (half of stride)
 
-    max_size = cfg.PREPROC.MAX_SIZE
+    max_size = cfg.DATA.MAX_SIZE
     field_size = int(np.ceil(max_size / stride))
     shifts = np.arange(0, field_size) * stride
     shift_x, shift_y = np.meshgrid(shifts, shifts)
@@ -270,128 +249,6 @@ def get_multilevel_rpn_anchor_input(im, boxes, is_crowd):
     return multilevel_inputs
 
 
-def get_train_dataflow():
-    """
-    Return a training dataflow. Each datapoint consists of the following:
-
-    An image: (h, w, 3),
-
-    1 or more pairs of (anchor_labels, anchor_boxes):
-    anchor_labels: (h', w', NA)
-    anchor_boxes: (h', w', NA, 4)
-
-    gt_boxes: (N, 4)
-    gt_labels: (N,)
-
-    If MODE_MASK, gt_masks: (N, h, w)
-    """
-
-    roidbs = DetectionDataset().load_training_roidbs(cfg.DATA.TRAIN)
-    print_class_histogram(roidbs)
-
-    # Valid training images should have at least one fg box.
-    # But this filter shall not be applied for testing.
-    num = len(roidbs)
-    roidbs = list(filter(lambda img: len(img['boxes'][img['is_crowd'] == 0]) > 0, roidbs))
-    logger.info("Filtered {} images which contain no non-crowd groudtruth boxes. Total #images for training: {}".format(
-        num - len(roidbs), len(roidbs)))
-
-    ds = DataFromList(roidbs, shuffle=True)
-
-    aug = imgaug.AugmentorList(
-        [CustomResize(cfg.PREPROC.TRAIN_SHORT_EDGE_SIZE, cfg.PREPROC.MAX_SIZE),
-         imgaug.Flip(horiz=True)])
-
-    def preprocess(roidb):
-        fname, boxes, klass, is_crowd = roidb['file_name'], roidb['boxes'], roidb['class'], roidb['is_crowd']
-        boxes = np.copy(boxes)
-        im = cv2.imread(fname, cv2.IMREAD_COLOR)
-        assert im is not None, fname
-        im = im.astype('float32')
-        # assume floatbox as input
-        assert boxes.dtype == np.float32, "Loader has to return floating point boxes!"
-
-        # augmentation:
-        im, params = aug.augment_return_params(im)
-        points = box_to_point8(boxes)
-        points = aug.augment_coords(points, params)
-        boxes = point8_to_box(points)
-        assert np.min(np_area(boxes)) > 0, "Some boxes have zero area!"
-
-        ret = {'image': im}
-        # rpn anchor:
-        try:
-            if cfg.MODE_FPN:
-                multilevel_anchor_inputs = get_multilevel_rpn_anchor_input(im, boxes, is_crowd)
-                for i, (anchor_labels, anchor_boxes) in enumerate(multilevel_anchor_inputs):
-                    ret['anchor_labels_lvl{}'.format(i + 2)] = anchor_labels
-                    ret['anchor_boxes_lvl{}'.format(i + 2)] = anchor_boxes
-            else:
-                # anchor_labels, anchor_boxes
-                ret['anchor_labels'], ret['anchor_boxes'] = get_rpn_anchor_input(im, boxes, is_crowd)
-
-            boxes = boxes[is_crowd == 0]    # skip crowd boxes in training target
-            klass = klass[is_crowd == 0]
-            ret['gt_boxes'] = boxes
-            ret['gt_labels'] = klass
-            if not len(boxes):
-                raise MalformedData("No valid gt_boxes!")
-        except MalformedData as e:
-            log_once("Input {} is filtered for training: {}".format(fname, str(e)), 'warn')
-            return None
-
-        if cfg.MODE_MASK:
-            # augmentation will modify the polys in-place
-            segmentation = copy.deepcopy(roidb['segmentation'])
-            segmentation = [segmentation[k] for k in range(len(segmentation)) if not is_crowd[k]]
-            assert len(segmentation) == len(boxes)
-
-            # Apply augmentation on polygon coordinates.
-            # And produce one image-sized binary mask per box.
-            masks = []
-            for polys in segmentation:
-                polys = [aug.augment_coords(p, params) for p in polys]
-                masks.append(segmentation_to_mask(polys, im.shape[0], im.shape[1]))
-            masks = np.asarray(masks, dtype='uint8')    # values in {0, 1}
-            ret['gt_masks'] = masks
-
-            # from viz import draw_annotation, draw_mask
-            # viz = draw_annotation(im, boxes, klass)
-            # for mask in masks:
-            #     viz = draw_mask(viz, mask)
-            # tpviz.interactive_imshow(viz)
-        return ret
-
-    if cfg.TRAINER == 'horovod':
-        ds = MultiThreadMapData(ds, 5, preprocess)
-        # MPI does not like fork()
-    else:
-        ds = MultiProcessMapDataZMQ(ds, 10, preprocess)
-    return ds
-
-
-def get_eval_dataflow(name, shard=0, num_shards=1):
-    """
-    Args:
-        name (str): name of the dataset to evaluate
-        shard, num_shards: to get subset of evaluation data
-    """
-    roidbs = DetectionDataset().load_inference_roidbs(name)
-
-    num_imgs = len(roidbs)
-    img_per_shard = num_imgs // num_shards
-    img_range = (shard * img_per_shard, (shard + 1) * img_per_shard if shard + 1 < num_shards else num_imgs)
-
-    # no filter for training
-    ds = DataFromListOfDict(roidbs[img_range[0]: img_range[1]], ['file_name', 'id'])
-
-    def f(fname):
-        im = cv2.imread(fname, cv2.IMREAD_COLOR)
-        assert im is not None, fname
-        return im
-    ds = MapDataComponent(ds, f, 0)
-    # Evaluation itself may be multi-threaded, therefore don't add prefetch here.
-    return ds
 
 
 if __name__ == '__main__':
