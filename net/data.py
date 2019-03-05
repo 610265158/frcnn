@@ -252,12 +252,7 @@ def get_multilevel_rpn_anchor_input(im, boxes, is_crowd):
 
 
 if __name__ == '__main__':
-    import os
-    from tensorpack.dataflow import PrintData
-    cfg.DATA.BASEDIR = os.path.expanduser('~/data/coco')
-    ds = get_train_dataflow()
-    ds = PrintData(ds, 100)
-    TestDataSpeed(ds, 50000).start()
-    ds.reset_state()
-    for k in ds:
-        pass
+    anchors=get_all_anchors_fpn()
+
+    for x in anchors:
+        print(x.shape)

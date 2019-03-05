@@ -57,7 +57,7 @@ def fasterrcnn_arg_scope(weight_decay=0.00001,
       weights_initializer=slim.variance_scaling_initializer(),
       normalizer_fn=slim.batch_norm if use_batch_norm else None,
       normalizer_params=batch_norm_params,
-      data_format='NCHW'):
+      data_format='NHWC'):
     with slim.arg_scope([slim.batch_norm], **batch_norm_params):
       # The following implies padding='SAME' for pool1, which makes feature
       # alignment easier for dense prediction tasks. This is also used in
@@ -85,12 +85,13 @@ def backbone(image,L2_reg,is_training):
 def slice_feature_and_anchors( p23456, anchors):
     for i, stride in enumerate(cfg.FPN.ANCHOR_STRIDES):
         with tf.name_scope('FPN_slice_lvl{}'.format(i)):
+
             anchors[i] = anchors[i].narrow_to(p23456[i])
 
 def rpn(image, features, inputs,L2_reg,is_training,python_training=cfg.MODEL.mode):
     assert len(cfg.RPN.ANCHOR_SIZES) == len(cfg.FPN.ANCHOR_STRIDES)
 
-    image_shape2d = tf.shape(image)[2:]     # h,w
+    image_shape2d = tf.shape(image)[1:3]     # h,w
     all_anchors_fpn = get_all_anchors_fpn()
 
 
@@ -134,7 +135,7 @@ def rpn(image, features, inputs,L2_reg,is_training,python_training=cfg.MODEL.mod
     return BoxProposals(proposal_boxes), losses
 
 def roi_heads( image, features, proposals, targets,L2_reg,is_training,python_training=cfg.MODEL.mode):
-    image_shape2d = tf.shape(image)[2:]     # h,w
+    image_shape2d = tf.shape(image)[1:3]     # h,w
     assert len(features) == 5, "Features have to be P23456!"
     gt_boxes, gt_labels, *_ = targets
 
@@ -148,6 +149,8 @@ def roi_heads( image, features, proposals, targets,L2_reg,is_training,python_tra
         roi_feature_fastrcnn = multilevel_roi_align(features[:4], proposals.boxes, 7)
 
 
+
+        print('roi_feature_fastrcnn',roi_feature_fastrcnn)
         head_feature = fastrcnn_head_func('fastrcnn', roi_feature_fastrcnn,L2_reg,is_training)
 
         fastrcnn_label_logits, fastrcnn_box_logits = fastrcnn_outputs(
@@ -163,12 +166,6 @@ def roi_heads( image, features, proposals, targets,L2_reg,is_training,python_tra
 
 
         all_losses = fastrcnn_head.losses()       ###add predict nms here
-
-        decoded_boxes = fastrcnn_head.decoded_output_boxes()
-        decoded_boxes = clip_boxes(decoded_boxes, image_shape2d, name='fastrcnn_all_boxes')
-        label_scores = fastrcnn_head.output_scores(name='fastrcnn_all_scores')
-        final_boxes, final_scores, final_labels = fastrcnn_predictions(
-            decoded_boxes, label_scores, name_scope='output')
 
         return all_losses
     else:
@@ -203,7 +200,8 @@ def preprocess( image):
         image_invstd = tf.constant(1.0 / std, dtype=tf.float32)
         image = (image - image_mean) * image_invstd
 
-    return tf.transpose(image, [0, 3, 1, 2])
+    return image
+
 
 
 def faster_rcnn( inputs,L2_reg=0.00001,is_training=True):
@@ -213,8 +211,8 @@ def faster_rcnn( inputs,L2_reg=0.00001,is_training=True):
     anchor_inputs = {k: v for k, v in inputs.items() if 'anchor_' in k}
 
     image = preprocess(inputs['images'])  # 1CHW
-    features = backbone(image,L2_reg,is_training)
 
+    features = backbone(image,L2_reg,is_training)
 
     print('backbone',features)
     proposals, rpn_losses = rpn(image, features, anchor_inputs,L2_reg,is_training)  # inputs?

@@ -15,7 +15,7 @@ def GetFileList(dir, fileList):
             newDir=os.path.join(dir,s)
             GetFileList(newDir, fileList)
     return fileList
-data_dir='/home/lz/fddb/annotations'
+data_dir='../fddb/annotations'
 
 
 pic_list=[]

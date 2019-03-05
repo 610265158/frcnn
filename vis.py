@@ -25,7 +25,7 @@ def GetFileList(dir, fileList):
 
 def faceboxes_with_landmark():
     count = 0
-    data_dir = '/home/zi.liang/coco_data/human_attr/daily'
+    data_dir = '/home/lz/fddb/images'
 
     pics = []
     GetFileList(data_dir,pics)
@@ -41,7 +41,7 @@ def faceboxes_with_landmark():
 
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         star=time.time()
-        boxes,scores,labels=detector(img,0.3)
+        boxes,scores,labels=detector(img,0.1)
         #print('one iamge cost %f s'%(time.time()-star))
         #print(boxes.shape)
         #print(boxes)  

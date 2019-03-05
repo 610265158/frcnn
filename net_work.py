@@ -332,8 +332,8 @@ class trainner():
             for epoch in range(cfg.TRAIN.epoch):
                 self._train(train_ds,epoch)
                 val_loss=self._val(val_ds,epoch)
-                #logger.info('**************'
-                #            'val_loss %f ,val_acc %f'%(val_loss,val_acc))
+                logger.info('**************'
+                           'val_loss %f '%(val_loss))
 
                 #tmp_model_name=cfg.MODEL.model_path + \
                 #               'epoch_' + str(epoch ) + \

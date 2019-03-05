@@ -10,7 +10,7 @@ class FrcnnDetector:
         """
         self._graph = tf.Graph()
         self._sess = tf.Session(graph=self._graph)
-        self.input_size=512
+        self.input_size=256
         with self._graph.as_default():
             self._graph, self._sess = self.init_model(model_path)
 

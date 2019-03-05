@@ -26,12 +26,12 @@ def rpn_head(scope_str,featuremap, channel, num_anchors,L2_reg,training):
                                   normalizer_fn=None, scope='class')
                 box_logits = slim.conv2d(hidden, 4 * num_anchors, [1, 1], stride=1, activation_fn=None,
                                   normalizer_fn=None, scope='box')
-                label_logits = tf.transpose(label_logits, [0, 2, 3, 1])  # 1xfHxfWxNA
+                #label_logits = tf.transpose(label_logits, [0, 2, 3, 1])  # 1xfHxfWxNA
                 label_logits = tf.squeeze(label_logits, 0)  # fHxfWxNA
 
                 shp = tf.shape(box_logits)  # 1x(NAx4)xfHxfW
-                box_logits = tf.transpose(box_logits, [0, 2, 3, 1])  # 1xfHxfWx(NAx4)
-                box_logits = tf.reshape(box_logits, tf.stack([shp[2], shp[3], num_anchors, 4]))  # fHxfWxNAx4
+                #box_logits = tf.transpose(box_logits, [0, 2, 3, 1])  # 1xfHxfWx(NAx4)
+                box_logits = tf.reshape(box_logits, tf.stack([shp[1], shp[2], num_anchors, 4]))  # fHxfWxNAx4
     return label_logits, box_logits
 
 @layer_register(log_shape=True)

@@ -50,9 +50,6 @@ def create_global_net(blocks, L2_reg,is_training, trainable=True,data_format='NH
 
 
 def plain_resnet50_backbone(image,L2_reg,is_training=True,data_format='NHWC'):
-    if data_format=='NHWC':
-        image=tf.transpose(image, [0, 2, 3, 1])
-
 
     resnet_fms = resnet50(image, L2_reg,is_training, bn_trainable=True,data_format=data_format)
     print('resnet50 backbone output:',resnet_fms)
@@ -60,9 +57,6 @@ def plain_resnet50_backbone(image,L2_reg,is_training=True,data_format='NHWC'):
     # with tf.variable_scope('CPN'):
     fpn_fms = create_global_net(resnet_fms, L2_reg,is_training,data_format=data_format)
 
-    if data_format=='NHWC':
-        for i in range(len(fpn_fms)):
-            fpn_fms[i]=tf.transpose(fpn_fms[i], [0, 3, 1, 2])
     return fpn_fms
 
 

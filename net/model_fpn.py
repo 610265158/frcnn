@@ -103,6 +103,10 @@ def multilevel_rpn_losses(
     with tf.name_scope('rpn_losses'):
         for lvl in range(num_lvl):
             anchors = multilevel_anchors[lvl]
+
+
+
+
             label_loss, box_loss = rpn_losses(
                 anchors.gt_labels, anchors.encoded_gt_boxes(),
                 multilevel_label_logits[lvl], multilevel_box_logits[lvl],

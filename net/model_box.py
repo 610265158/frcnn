@@ -100,7 +100,7 @@ def crop_and_resize(image, boxes, box_ind, crop_size, pad_border=True):
     # TF's crop_and_resize produces zeros on border
     if pad_border:
         # this can be quite slow
-        image = tf.pad(image, [[0, 0], [0, 0], [1, 1], [1, 1]], mode='SYMMETRIC')
+        image = tf.pad(image, [[0, 0],  [1, 1], [1, 1],[0, 0]], mode='SYMMETRIC')
         boxes = boxes + 1
 
     @under_name_scope()
@@ -145,13 +145,19 @@ def crop_and_resize(image, boxes, box_ind, crop_size, pad_border=True):
     # boxes_x2y2new = boxes_center + boxes_newwh * 0.5
     # boxes = tf.concat([boxes_x1y1new, boxes_x2y2new], axis=1)
 
-    image_shape = tf.shape(image)[2:]
+
+    print(image)
+    image_shape = tf.shape(image)[1:3]
+
+    print(image_shape)
     boxes = transform_fpcoor_for_tf(boxes, image_shape, [crop_size, crop_size])
-    image = tf.transpose(image, [0, 2, 3, 1])   # nhwc
+
+
+    #image = tf.transpose(image, [0, 2, 3, 1])   # nhwc
     ret = tf.image.crop_and_resize(
         image, boxes, tf.cast(box_ind, tf.int32),
         crop_size=[crop_size, crop_size])
-    ret = tf.transpose(ret, [0, 3, 1, 2])   # ncss
+    #ret = tf.transpose(ret, [0, 3, 1, 2])   # ncss
     return ret
 
 
@@ -171,7 +177,10 @@ def roi_align(featuremap, boxes, resolution):
         featuremap, boxes,
         tf.zeros([tf.shape(boxes)[0]], dtype=tf.int32),
         resolution * 2)
-    ret = tf.nn.avg_pool(ret, [1, 1, 2, 2], [1, 1, 2, 2], padding='SAME', data_format='NCHW')
+
+
+    ret = tf.nn.avg_pool(ret, [1, 2, 2, 1], [1, 2, 2, 1], padding='SAME', data_format='NHWC')
+
     return ret
 
 
@@ -192,7 +201,7 @@ class RPNAnchors(namedtuple('_RPNAnchors', ['boxes', 'gt_labels', 'gt_boxes'])):
         """
         Slice anchors to the spatial size of this featuremap.
         """
-        shape2d = tf.shape(featuremap)[2:]  # h,w
+        shape2d = tf.shape(featuremap)[1:3]  # h,w
         slice3d = tf.concat([shape2d, [-1]], axis=0)
         slice4d = tf.concat([shape2d, [-1, -1]], axis=0)
         boxes = tf.slice(self.boxes, [0, 0, 0, 0], slice4d)
