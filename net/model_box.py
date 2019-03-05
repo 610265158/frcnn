@@ -146,10 +146,8 @@ def crop_and_resize(image, boxes, box_ind, crop_size, pad_border=True):
     # boxes = tf.concat([boxes_x1y1new, boxes_x2y2new], axis=1)
 
 
-    print(image)
     image_shape = tf.shape(image)[1:3]
 
-    print(image_shape)
     boxes = transform_fpcoor_for_tf(boxes, image_shape, [crop_size, crop_size])
 
 

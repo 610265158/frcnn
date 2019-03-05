@@ -74,7 +74,7 @@ def fasterrcnn_arg_scope(weight_decay=0.00001,
 
 
 def backbone(image,L2_reg,is_training):
-    from net.resnet_cp.backbone import plain_resnet50_backbone
+    from net.simplenet.backbone import plain_resnet50_backbone
     p23456=plain_resnet50_backbone(image,L2_reg,is_training)
     return p23456
 

@@ -61,7 +61,7 @@ config.RPN.HEAD_DIM = 1024      # used in C4 only
 
 
 config.RPN.TRAIN_PER_LEVEL_NMS_TOPK = 2000
-config.RPN.TEST_PER_LEVEL_NMS_TOPK = 1000
+config.RPN.TEST_PER_LEVEL_NMS_TOPK = 100
 
 
 
@@ -129,5 +129,5 @@ config.MODEL.MODE_FPN = True
 config.MODEL.model_path = './model/'  # save directory
 
 config.MODEL.net_structure='resnet_v1_50' ######'InceptionResnetV2,resnet_v2_50
-config.MODEL.pretrained_model='resnet_v1_50.ckpt'
-#config.MODEL.pretrained_model='./model/epoch_3L2_1e-06val_loss0.2124447430483997.ckpt'
+#config.MODEL.pretrained_model=None
+config.MODEL.pretrained_model='./model/epoch_0L2_1e-05val_loss0.17968987804278733.ckpt'
