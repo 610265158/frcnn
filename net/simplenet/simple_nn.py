@@ -10,6 +10,8 @@ def shufflenet_arg_scope(weight_decay=0.00001,
                      batch_norm_epsilon=1e-5,
                      batch_norm_scale=True,
                      use_batch_norm=True,
+                     is_training=True,
+                     trainable=True,
                      batch_norm_updates_collections=tf.GraphKeys.UPDATE_OPS,
                      ):
   """Defines the default ResNet arg scope.
@@ -38,7 +40,8 @@ def shufflenet_arg_scope(weight_decay=0.00001,
       'scale': batch_norm_scale,
       'updates_collections': batch_norm_updates_collections,
       'fused': True,  # Use fused batch norm if possible.
-      'trainable':False
+      'trainable':trainable,
+      'is_training':is_training
   }
 
   with slim.arg_scope(
@@ -198,30 +201,30 @@ def simple_nn(inputs,L2_reg,training=True):
 
     fms=[]
 
-    arg_scope = shufflenet_arg_scope(weight_decay=L2_reg)
+    arg_scope = shufflenet_arg_scope(weight_decay=L2_reg,is_training=training,)
     with slim.arg_scope(arg_scope):
-        with slim.arg_scope([slim.batch_norm], is_training=training):
-            with tf.variable_scope('ShuffleNetV2'):
 
-                net = slim.conv2d(inputs, 24, [3, 3],stride=2, activation_fn=tf.nn.crelu,
-                                  normalizer_fn=slim.batch_norm, scope='init_conv')
-                net = tf.nn.max_pool(net, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding="SAME", name='pool1')
+        with tf.variable_scope('ShuffleNetV2'):
 
-                # net = slim.separable_conv2d(net, 48, [3, 3], stride=2, activation_fn=tf.nn.relu,
-                #                           normalizer_fn=slim.batch_norm, scope='init_conv_2', depth_multiplier=1)
-                fms.append(net)
-                print('first conv shape', net.shape)
-                net = block_plain(net, num_units=2, out_channels=256, scope='Stage2')
-                print('2 conv shape', net.shape)
-                fms.append(net)
-                net = block_plain(net, num_units=2, out_channels=256, scope='Stage3')
-                print('3 conv shape', net.shape)
-                fms.append(net)
-                net = block_plain(net, num_units=2, out_channels=256, scope='Stage4')
-                fms.append(net)
-                print('4 conv shape', net.shape)
+            net = slim.conv2d(inputs, 24, [3, 3],stride=2, activation_fn=tf.nn.crelu,
+                              normalizer_fn=slim.batch_norm, scope='init_conv')
+            net = tf.nn.max_pool(net, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding="SAME", name='pool1')
 
-                ##use three layes feature in different scale 28x28 14x14 7x7
+            # net = slim.separable_conv2d(net, 48, [3, 3], stride=2, activation_fn=tf.nn.relu,
+            #                           normalizer_fn=slim.batch_norm, scope='init_conv_2', depth_multiplier=1)
+            fms.append(net)
+            print('first conv shape', net.shape)
+            net = block_plain(net, num_units=2, out_channels=48, scope='Stage2')
+            print('2 conv shape', net.shape)
+            fms.append(net)
+            net = block_plain(net, num_units=2, out_channels=96, scope='Stage3')
+            print('3 conv shape', net.shape)
+            fms.append(net)
+            net = block_plain(net, num_units=2, out_channels=128, scope='Stage4')
+            fms.append(net)
+            print('4 conv shape', net.shape)
+
+            ##use three layes feature in different scale 28x28 14x14 7x7
 
 
     return fms

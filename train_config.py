@@ -119,4 +119,4 @@ config.MODEL.model_path = './model/'  # save directory
 
 config.MODEL.net_structure='ShuffleNetV2' ######'InceptionResnetV2,resnet_v2_50
 config.MODEL.pretrained_model=None
-# config.MODEL.pretrained_model='./model/epoch_1L2_1e-05.ckpt'
+# config.MODEL.pretrained_model='./model/epoch_0L2_1e-05.ckpt'
