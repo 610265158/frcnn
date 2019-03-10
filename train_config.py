@@ -110,7 +110,7 @@ config.BACKBONE = edict()
 
 config.MODEL = edict()
 
-config.MODEL.mode=True ###True for train False for eval
+config.MODEL.mode=False ###True for train False for eval
 
 config.MODEL.MODE_MASK = False        # FasterRCNN or MaskRCNN
 config.MODEL.MODE_FPN = True
@@ -118,5 +118,5 @@ config.MODEL.MODE_FPN = True
 config.MODEL.model_path = './model/'  # save directory
 
 config.MODEL.net_structure='ShuffleNetV2' ######'InceptionResnetV2,resnet_v2_50
-config.MODEL.pretrained_model=None
-# config.MODEL.pretrained_model='./model/epoch_0L2_1e-05.ckpt'
+# config.MODEL.pretrained_model=None
+config.MODEL.pretrained_model='./model/epoch_0L2_1e-05.ckpt'

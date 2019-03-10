@@ -40,8 +40,8 @@ def shufflenet_arg_scope(weight_decay=0.00001,
       'scale': batch_norm_scale,
       'updates_collections': batch_norm_updates_collections,
       'fused': True,  # Use fused batch norm if possible.
-      'trainable':trainable,
-      'is_training':is_training
+      'trainable':True,
+      'is_training':True
   }
 
   with slim.arg_scope(

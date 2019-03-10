@@ -51,7 +51,7 @@ def create_global_net(blocks, L2_reg,is_training, trainable=True,data_format='NH
 
 def plain_resnet50_backbone(image,L2_reg,is_training=True,data_format='NHWC'):
 
-    resnet_fms = resnet50(image, L2_reg,bn_is_training=is_training, bn_trainable=True,data_format=data_format)
+    resnet_fms = resnet50(image, L2_reg,bn_is_training=False, bn_trainable=False,data_format=data_format)
     print('resnet50 backbone output:',resnet_fms)
 
     # with tf.variable_scope('CPN'):
