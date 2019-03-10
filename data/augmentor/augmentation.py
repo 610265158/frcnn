@@ -45,6 +45,85 @@ def Rotate_coordinate(label,rt_matrix):
     label_rotated = label_rotated[0:2, :]
     return label_rotated
 
+
+def box_to_point(boxes):
+
+    ##caution the boxes are ymin xmin ymax xmax
+    points_set=np.zeros(shape=[4*boxes.shape[0],2])
+
+    for i in range(boxes.shape[0]):
+        points_set[4 * i]=np.array([boxes[i][1],boxes[i][0]])
+        points_set[4 * i+1] =np.array([boxes[i][3],boxes[i][0]])
+        points_set[4 * i+2] =np.array([boxes[i][3],boxes[i][2]])
+        points_set[4 * i+3] =np.array([boxes[i][1],boxes[i][2]])
+
+
+    return points_set
+
+
+def point_to_box(points):
+    boxes=[]
+    points=points.reshape([-1,4,2])
+
+    for i in range(points.shape[0]):
+        box=[np.min(points[i][:,1]),np.min(points[i][:,0]),np.max(points[i][:,1]),np.max(points[i][:,0])]
+
+        boxes.append(box)
+
+    return np.array(boxes)
+
+
+def Rotate_with_box(src,angle,boxes=None,center=None,scale=1.0):
+    '''
+    :param src: src image
+    :param label: label should be numpy array with [[x1,y1],
+                                                    [x2,y2],
+                                                    [x3,y3]...]
+    :param angle:
+    :param center:
+    :param scale:
+    :return: the rotated image and the points
+    '''
+
+    label=box_to_point(boxes)
+    image=src
+    (h, w) = image.shape[:2]
+    # 若未指定旋转中心，则将图像中心设为旋转中心
+
+
+    if center is None:
+        center = (w / 2, h / 2)
+    # 执行旋转
+    M = cv2.getRotationMatrix2D(center, angle, scale)
+
+    new_size=Rotate_coordinate(np.array([[0,w,w,0],
+                                         [0,0,h,h]]), M)
+
+    new_h,new_w=np.max(new_size[1])-np.min(new_size[1]),np.max(new_size[0])-np.min(new_size[0])
+
+    scale=min(h/new_h,w/new_w)
+
+    M = cv2.getRotationMatrix2D(center, angle, scale)
+
+    if label is None:
+        for i in range(image.shape[2]):
+            image[:,:,i] = cv2.warpAffine(image[:,:,i], M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_CONSTANT)
+        return image,None
+    else:
+        label=label.T
+        ####make it as a 3x3 RT matrix
+        full_M=np.row_stack((M,np.asarray([0,0,1])))
+        img_rotated = cv2.warpAffine(image, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_CONSTANT)
+        ###make the label as 3xN matrix
+        full_label = np.row_stack((label, np.ones(shape=(1,label.shape[1]))))
+        label_rotated=np.dot(full_M,full_label)
+        label_rotated=label_rotated[0:2,:]
+        #label_rotated = label_rotated.astype(np.int32)
+        label_rotated=label_rotated.T
+
+        boxes_rotated = point_to_box(label_rotated)
+        return img_rotated,boxes_rotated
+
 ###CAUTION:its not ok for transform with label for perspective _aug
 def Perspective_aug(src,strength,label=None):
     image = src
@@ -357,6 +436,10 @@ if __name__=='__main__':
         #bboxes=np.array([[165,60,233,138],[100,60,233,138]])
         img, bboxes=Random_scale_withbbox(img,bboxes,target_shape=[1024,1024],jitter=0.4)
 
+
+        if random.uniform(0, 1) > 0.5:
+            k = random.uniform(-90, 90)
+            img, bboxes = Rotate_with_box(img, k, bboxes)
 
         for i in range(bboxes.shape[0]):
             box = bboxes[i]

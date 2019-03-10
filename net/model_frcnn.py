@@ -117,28 +117,6 @@ def fastrcnn_outputs(scope_str,feature, num_classes,L2_reg,training=True,class_a
 
         return classification, box_regression
 
-@layer_register(log_shape=True)
-def fastrcnn_outputs_(feature, num_classes, class_agnostic_regression=False):
-    """
-    Args:
-        feature (any shape):
-        num_classes(int): num_category + 1
-        class_agnostic_regression (bool): if True, regression to N x 1 x 4
-
-    Returns:
-        cls_logits: N x num_class classification logits
-        reg_logits: N x num_classx4 or Nx2x4 if class agnostic
-    """
-    classification = FullyConnected(
-        'class', feature, num_classes,
-        kernel_initializer=tf.random_normal_initializer(stddev=0.01))
-
-    num_classes_for_box = 1 if class_agnostic_regression else num_classes
-    box_regression = FullyConnected(
-        'box', feature, num_classes_for_box * 4,
-        kernel_initializer=tf.random_normal_initializer(stddev=0.001))
-    box_regression = tf.reshape(box_regression, (-1, num_classes_for_box, 4), name='output_box')
-    return classification, box_regression
 
 
 @under_name_scope()
@@ -313,6 +291,7 @@ def fastrcnn_2fc_head(scope_str,feature,L2_reg,training):
         with slim.arg_scope([slim.batch_norm], is_training=training):
             with tf.variable_scope(scope_str):
                 feature=slim.flatten(feature)
+
                 hidden = slim.fully_connected(feature, dim, activation_fn=tf.nn.relu, scope='fc6',trainable=True)
 
     return hidden
@@ -346,14 +325,6 @@ def fastrcnn_2fc_head_(scope_str,feature,L2_reg,training):
 
     return hidden
 
-
-
-def fastrcnn_4conv1fc_head(*args, **kwargs):
-    return fastrcnn_Xconv1fc_head(*args, num_convs=4, **kwargs)
-
-
-def fastrcnn_4conv1fc_gn_head(*args, **kwargs):
-    return fastrcnn_Xconv1fc_head(*args, num_convs=4, norm='GN', **kwargs)
 
 
 class BoxProposals(object):

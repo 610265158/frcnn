@@ -108,8 +108,8 @@ def basic_unit_with_downsampling(x,out_channels=None):
         x = slim.conv2d(x, out_channels // 2, [1, 1], stride=1, activation_fn=tf.nn.relu,
                         normalizer_fn=slim.batch_norm, scope='conv1x1_after')
 
-    x = tf.concat([x, y], axis=3)
-    return x
+
+    return x,y
 
 ### a simple conv unit
 def basic_unit_plain(x):
@@ -162,17 +162,17 @@ def block(x, num_units,out_channels=None, scope='stage'):
 
     return x
 
-def block_with_shuffle(x, num_units, L2_reg,training,out_channels=None, scope='stage'):
+def block_with_shuffle(x, num_units,out_channels=None, scope='stage'):
     with tf.variable_scope(scope):
 
         with tf.variable_scope('unit_1'):
-            x, y = basic_unit_with_downsampling(x,L2_reg, training,out_channels)
+            x, y = basic_unit_with_downsampling(x,out_channels)
 
         for j in range(2, num_units + 1):
             with tf.variable_scope('unit_%d' % j):
                 x, y = concat_shuffle_split(x, y)
 
-                x = basic_unit(x,L2_reg,training)
+                x = basic_unit(x)
 
         x = tf.concat([x, y], axis=3)
 
@@ -208,13 +208,13 @@ def simple_nn(inputs,L2_reg,training=True):
                 #                           normalizer_fn=slim.batch_norm, scope='init_conv_2', depth_multiplier=1)
                 fms.append(net)
                 print('first conv shape', net.shape)
-                net = block_plain(net, num_units=2, out_channels=64, scope='Stage2')
+                net = block_plain(net, num_units=4, out_channels=32, scope='Stage2')
                 print('2 conv shape', net.shape)
                 fms.append(net)
-                net = block_plain(net, num_units=2, out_channels=128, scope='Stage3')
+                net = block_plain(net, num_units=8, out_channels=64, scope='Stage3')
                 print('3 conv shape', net.shape)
                 fms.append(net)
-                net = block_plain(net, num_units=2, out_channels=256, scope='Stage4')
+                net = block_plain(net, num_units=4, out_channels=128, scope='Stage4')
                 fms.append(net)
                 print('4 conv shape', net.shape)
 

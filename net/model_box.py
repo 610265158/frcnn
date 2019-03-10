@@ -149,8 +149,6 @@ def crop_and_resize(image, boxes, box_ind, crop_size, pad_border=True):
     image_shape = tf.shape(image)[1:3]
 
     boxes = transform_fpcoor_for_tf(boxes, image_shape, [crop_size, crop_size])
-
-
     #image = tf.transpose(image, [0, 2, 3, 1])   # nhwc
     ret = tf.image.crop_and_resize(
         image, boxes, tf.cast(box_ind, tf.int32),
@@ -194,7 +192,7 @@ class RPNAnchors(namedtuple('_RPNAnchors', ['boxes', 'gt_labels', 'gt_boxes'])):
     def decode_logits(self, logits):
         return decode_bbox_target(logits, self.boxes)
 
-    @under_name_scope()
+
     def narrow_to(self, featuremap):
         """
         Slice anchors to the spatial size of this featuremap.
@@ -205,6 +203,9 @@ class RPNAnchors(namedtuple('_RPNAnchors', ['boxes', 'gt_labels', 'gt_boxes'])):
         boxes = tf.slice(self.boxes, [0, 0, 0, 0], slice4d)
         gt_labels = tf.slice(self.gt_labels, [0, 0, 0], slice3d)
         gt_boxes = tf.slice(self.gt_boxes, [0, 0, 0, 0], slice4d)
+
+
+
         return RPNAnchors(boxes, gt_labels, gt_boxes)
 
 

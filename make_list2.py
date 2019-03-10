@@ -15,7 +15,7 @@ def GetFileList(dir, fileList):
             newDir=os.path.join(dir,s)
             GetFileList(newDir, fileList)
     return fileList
-data_dir='../fddb/annotations'
+data_dir='/data/coco_data/facedetection/wider_facetrain/annotations'
 
 
 pic_list=[]
@@ -24,7 +24,7 @@ pic_list=[x for x in pic_list if 'json' in x]
 random.shuffle(pic_list)
 
 
-ratio=0.95
+ratio=1
 train_list=pic_list[:int(ratio*len(pic_list))]
 val_list=pic_list[int(ratio*len(pic_list)):]
 

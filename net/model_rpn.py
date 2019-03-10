@@ -34,30 +34,6 @@ def rpn_head(scope_str,featuremap, channel, num_anchors,L2_reg,training):
                 box_logits = tf.reshape(box_logits, tf.stack([shp[1], shp[2], num_anchors, 4]))  # fHxfWxNAx4
     return label_logits, box_logits
 
-@layer_register(log_shape=True)
-@auto_reuse_variable_scope
-def rpn_head_(featuremap, channel, num_anchors):
-    """
-    Returns:
-        label_logits: fHxfWxNA
-        box_logits: fHxfWxNAx4
-    """
-    with argscope(Conv2D, data_format='channels_first',
-                  kernel_initializer=tf.random_normal_initializer(stddev=0.01)):
-        hidden = Conv2D('conv0', featuremap, channel, 3, activation=tf.nn.relu)
-
-        label_logits = Conv2D('class', hidden, num_anchors, 1)
-        box_logits = Conv2D('box', hidden, 4 * num_anchors, 1)
-        # 1, NA(*4), im/16, im/16 (NCHW)
-
-        label_logits = tf.transpose(label_logits, [0, 2, 3, 1])  # 1xfHxfWxNA
-        label_logits = tf.squeeze(label_logits, 0)  # fHxfWxNA
-
-        shp = tf.shape(box_logits)  # 1x(NAx4)xfHxfW
-        box_logits = tf.transpose(box_logits, [0, 2, 3, 1])  # 1xfHxfWx(NAx4)
-        box_logits = tf.reshape(box_logits, tf.stack([shp[2], shp[3], num_anchors, 4]))  # fHxfWxNAx4
-    return label_logits, box_logits
-
 
 @under_name_scope()
 def rpn_losses(anchor_labels, anchor_boxes, label_logits, box_logits):
@@ -81,26 +57,6 @@ def rpn_losses(anchor_labels, anchor_boxes, label_logits, box_logits):
         valid_anchor_labels = tf.boolean_mask(anchor_labels, valid_mask)
     valid_label_logits = tf.boolean_mask(label_logits, valid_mask)
 
-    with tf.name_scope('label_metrics'):
-        valid_label_prob = tf.nn.sigmoid(valid_label_logits)
-        summaries = []
-        with tf.device('/cpu:0'):
-            for th in [0.5, 0.2, 0.1]:
-                valid_prediction = tf.cast(valid_label_prob > th, tf.int32)
-                nr_pos_prediction = tf.reduce_sum(valid_prediction, name='num_pos_prediction')
-                pos_prediction_corr = tf.count_nonzero(
-                    tf.logical_and(
-                        valid_label_prob > th,
-                        tf.equal(valid_prediction, valid_anchor_labels)),
-                    dtype=tf.int32)
-                placeholder = 0.5   # A small value will make summaries appear lower.
-                recall = tf.cast(tf.truediv(pos_prediction_corr, nr_pos), tf.float32)
-                recall = tf.where(tf.equal(nr_pos, 0), placeholder, recall, name='recall_th{}'.format(th))
-                precision = tf.cast(tf.truediv(pos_prediction_corr, nr_pos_prediction), tf.float32)
-                precision = tf.where(tf.equal(nr_pos_prediction, 0),
-                                     placeholder, precision, name='precision_th{}'.format(th))
-                summaries.extend([precision, recall])
-        add_moving_summary(*summaries)
 
     # Per-level loss summaries in FPN may appear lower due to the use of a small placeholder.
     # But the total RPN loss will be fine.  TODO make the summary op smarter
@@ -119,7 +75,7 @@ def rpn_losses(anchor_labels, anchor_boxes, label_logits, box_logits):
     box_loss = box_loss * (1. / cfg.RPN.BATCH_PER_IM)
     box_loss = tf.where(tf.equal(nr_pos, 0), placeholder, box_loss, name='box_loss')
 
-    add_moving_summary(label_loss, box_loss, nr_valid, nr_pos)
+
     return [label_loss, box_loss]
 
 

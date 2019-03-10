@@ -8,11 +8,11 @@ config = edict()
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 config.TRAIN = edict()
-config.TRAIN.num_gpu = 1
+config.TRAIN.num_gpu = 4
 config.TRAIN.batch_size = 1
 config.TRAIN.log_interval = 10
 config.TRAIN.epoch = 2000
-config.TRAIN.train_set_size=20000  ###########u need be sure
+config.TRAIN.train_set_size=10000  ###########u need be sure
 config.TRAIN.val_set_size=1000
 config.TRAIN.iter_num_per_epoch = config.TRAIN.train_set_size // config.TRAIN.num_gpu // config.TRAIN.batch_size
 
@@ -28,7 +28,7 @@ config.TRAIN.vis=False
 
 
 config.TEST = edict()
-config.TEST.FRCNN_NMS_THRESH = 0.5
+config.TEST.FRCNN_NMS_THRESH = 0.4
 
 # Smaller threshold value gives significantly better mAP. But we use 0.05 for consistency with Detectron.
 # mAP with 1e-4 threshold can be found at https://github.com/tensorpack/tensorpack/commit/26321ae58120af2568bdbf2269f32aa708d425a8#diff-61085c48abee915b584027e1085e1043  # noqa
@@ -50,7 +50,7 @@ config.RPN.NEGATIVE_ANCHOR_THRESH = 0.3
 
 # rpn training -------------------------
 config.RPN.FG_RATIO = 0.5  # fg ratio among selected RPN anchors
-config.RPN.BATCH_PER_IM = 256//2  # total (across FPN levels) number of anchors that are marked valid
+config.RPN.BATCH_PER_IM = 256  # total (across FPN levels) number of anchors that are marked valid
 config.RPN.MIN_SIZE = 0
 config.RPN.PROPOSAL_NMS_THRESH = 0.7
 # Anchors which overlap with a crowd box (IOA larger than threshold) will be ignored.
@@ -61,7 +61,7 @@ config.RPN.HEAD_DIM = 1024      # used in C4 only
 
 
 config.RPN.TRAIN_PER_LEVEL_NMS_TOPK = 2000
-config.RPN.TEST_PER_LEVEL_NMS_TOPK = 100
+config.RPN.TEST_PER_LEVEL_NMS_TOPK = 50
 
 
 
@@ -69,7 +69,7 @@ config.RPN.TEST_PER_LEVEL_NMS_TOPK = 100
 config.FPN = edict()
 config.FPN.ANCHOR_STRIDES = (4, 8, 16, 32, 64)  # strides for each FPN level. Must be the same length as ANCHOR_SIZES
 config.FPN.PROPOSAL_MODE = 'Level'  # 'Level', 'Joint'
-config.FPN.NUM_CHANNEL = 256//4
+config.FPN.NUM_CHANNEL = 256//8
 config.FPN.NORM = 'None'  # 'None', 'GN'
 
 config.FPN.FRCNN_HEAD_FUNC = 'fastrcnn_2fc_head'
@@ -85,12 +85,10 @@ config.FPN.CASCADE = False
 
 
 config.FRCNN = edict()
-config.FRCNN.BATCH_PER_IM = 512//4
+config.FRCNN.BATCH_PER_IM = 512//8
 config.FRCNN.BBOX_REG_WEIGHTS = [10., 10., 5., 5.]  # Better but non-standard setting: [20, 20, 10, 10]
 config.FRCNN.FG_THRESH = 0.5
-config.FRCNN.FG_RATIO = 0.5  # fg ratio in a ROI batch
-
-
+config.FRCNN.FG_RATIO = 0.25  # fg ratio in a ROI batch
 
 config.DATA = edict()
 config.DATA.root_path=''
@@ -103,21 +101,14 @@ config.DATA.cover_small_face=400.
 config.DATA.PIXEL_MEAN = [123.675, 116.28, 103.53]   ###rgb
 config.DATA.PIXEL_STD = [58.395, 57.12, 57.375]
 
-config.DATA.hin = 512  # input size during training , 240
-config.DATA.win= 512
+config.DATA.hin = 480  # input size during training , 240
+config.DATA.win= 640
 
-config.DATA.MAX_SIZE=512
+config.DATA.MAX_SIZE=720
 
 
 config.BACKBONE = edict()
 # basemodel ----------------------
-config.BACKBONE.WEIGHTS = ''   # /path/to/weights.npz
-config.BACKBONE.RESNET_NUM_BLOCKS = [3, 4, 6, 3]     # for resnet50
-# RESNET_NUM_BLOCKS = [3, 4, 23, 3]    # for resnet101
-config.BACKBONE.FREEZE_AFFINE = False   # do not train affine parameters inside norm layers
-config.BACKBONE.NORM = 'FreezeBN'  # options: FreezeBN, SyncBN, GN, None
-config.BACKBONE.FREEZE_AT = 2  # options: 0, 1, 2
-
 
 config.MODEL = edict()
 
@@ -129,5 +120,6 @@ config.MODEL.MODE_FPN = True
 config.MODEL.model_path = './model/'  # save directory
 
 config.MODEL.net_structure='resnet_v1_50' ######'InceptionResnetV2,resnet_v2_50
-#config.MODEL.pretrained_model=None
-config.MODEL.pretrained_model='./model/epoch_0L2_1e-05val_loss0.17968987804278733.ckpt'
+# config.MODEL.pretrained_model=None
+config.MODEL.pretrained_model='./model/epoch_69L2_1e-05.ckpt'
+#

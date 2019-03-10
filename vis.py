@@ -25,7 +25,7 @@ def GetFileList(dir, fileList):
 
 def faceboxes_with_landmark():
     count = 0
-    data_dir = '/home/lz/fddb/images'
+    data_dir = '/home/lz/FACE/widerface/img'
 
     pics = []
     GetFileList(data_dir,pics)
@@ -41,7 +41,7 @@ def faceboxes_with_landmark():
 
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         star=time.time()
-        boxes,scores,labels=detector(img,0.1)
+        boxes,scores=detector(img,0.9)
         #print('one iamge cost %f s'%(time.time()-star))
         #print(boxes.shape)
         #print(boxes)  
@@ -50,13 +50,15 @@ def faceboxes_with_landmark():
 
 
         for box_index in range(boxes.shape[0]):
-            label=labels[box_index]
-            bbox = boxes[box_index]
-            if not label==0:
-                cv2.rectangle(img_show, (int(bbox[0]), int(bbox[1])),
-                              (int(bbox[2]), int(bbox[3])), (255, 0, 0), 4)
 
-        cv2.imwrite('./example/'+str(time.time())+'.jpg',img_show)
+            bbox = boxes[box_index]
+
+            cv2.rectangle(img_show, (int(bbox[0]), int(bbox[1])),
+                          (int(bbox[2]), int(bbox[3])), (255, 0, 0), 4)
+
+        cv2.namedWindow('res',0)
+        cv2.imshow('res',img_show)
+        cv2.waitKey(0)
     print(count)
 
 

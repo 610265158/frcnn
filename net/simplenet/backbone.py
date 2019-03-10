@@ -21,7 +21,7 @@ def create_global_net(blocks, L2_reg,is_training, trainable=True,data_format='NH
     initializer = tf.contrib.layers.xavier_initializer()
     for i, block in enumerate(reversed(blocks)):
         with slim.arg_scope(resnet_arg_scope(weight_decay=L2_reg,bn_is_training=is_training,data_format=data_format)):
-            lateral = slim.conv2d(block, 32, [1, 1],
+            lateral = slim.conv2d(block, 10, [1, 1],
                 trainable=trainable, weights_initializer=initializer,
                 padding='SAME', activation_fn=tf.nn.relu,
                 scope='lateral/res{}'.format(5-i))
@@ -29,7 +29,7 @@ def create_global_net(blocks, L2_reg,is_training, trainable=True,data_format='NH
             if last_fm is not None:
 
                 upsample = tf.keras.layers.UpSampling2D(data_format='channels_last' if data_format=='NHWC' else 'channels_first')(last_fm)
-                upsample = slim.conv2d(upsample, 32, [1, 1],
+                upsample = slim.conv2d(upsample, 10, [1, 1],
                     trainable=trainable, weights_initializer=initializer,
                     padding='SAME', activation_fn=None,
                     scope='merge/res{}'.format(5-i),data_format=data_format)
@@ -44,7 +44,7 @@ def create_global_net(blocks, L2_reg,is_training, trainable=True,data_format='NH
 
     global_fms.reverse()
     p6 = slim.max_pool2d(
-        global_fms[-1], [3, 3], stride=2, padding='SAME', scope='fpn_pool_6', data_format=data_format)
+        global_fms[-1], [2, 2], stride=2, padding='SAME', scope='fpn_pool_6', data_format=data_format)
 
     global_fms.append(p6)
     return global_fms

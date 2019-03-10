@@ -28,7 +28,7 @@ class MalformedData(BaseException):
 
 
 
-@memoized
+
 def get_all_anchors(stride=None, sizes=None):
     """
     Get all anchors in the largest possible image, shifted, floatbox
@@ -78,7 +78,7 @@ def get_all_anchors(stride=None, sizes=None):
     return field_of_anchors
 
 
-@memoized
+
 def get_all_anchors_fpn(strides=None, sizes=None):
     """
     Returns:

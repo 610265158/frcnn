@@ -85,6 +85,7 @@ def backbone(image,L2_reg,is_training):
 def slice_feature_and_anchors( p23456, anchors):
     for i, stride in enumerate(cfg.FPN.ANCHOR_STRIDES):
         with tf.name_scope('FPN_slice_lvl{}'.format(i)):
+            # print(anchors[i])
 
             anchors[i] = anchors[i].narrow_to(p23456[i])
 
@@ -93,7 +94,6 @@ def rpn(image, features, inputs,L2_reg,is_training,python_training=cfg.MODEL.mod
 
     image_shape2d = tf.shape(image)[1:3]     # h,w
     all_anchors_fpn = get_all_anchors_fpn()
-
 
     ###get itstower name
     tower_str=None
@@ -152,6 +152,8 @@ def roi_heads( image, features, proposals, targets,L2_reg,is_training,python_tra
 
         print('roi_feature_fastrcnn',roi_feature_fastrcnn)
         head_feature = fastrcnn_head_func('fastrcnn', roi_feature_fastrcnn,L2_reg,is_training)
+
+
 
         fastrcnn_label_logits, fastrcnn_box_logits = fastrcnn_outputs(
             'fastrcnn/outputs', head_feature, cfg.DATA.NUM_CLASS,L2_reg,is_training)

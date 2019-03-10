@@ -2,6 +2,8 @@ import tensorflow as tf
 import numpy as np
 import cv2
 import time
+
+from train_config import config as cfg
 class FrcnnDetector:
     def __init__(self, model_path):
         """
@@ -10,7 +12,7 @@ class FrcnnDetector:
         """
         self._graph = tf.Graph()
         self._sess = tf.Session(graph=self._graph)
-        self.input_size=512
+        self.input_size=(cfg.DATA.hin,cfg.DATA.win)
         with self._graph.as_default():
             self._graph, self._sess = self.init_model(model_path)
 
@@ -39,16 +41,16 @@ class FrcnnDetector:
 
         # image_fornet=image
         # shift_x, shift_y=0,0
-        image_fornet,shift_x,shift_y=self.Fill_img(image,target_width=512,target_height=512)
+        image_fornet,shift_x,shift_y=self.Fill_img(image,target_width=self.input_size[1],target_height=self.input_size[0])
         h, w, _ = image_fornet.shape
-        image_fornet=cv2.resize(image_fornet,(self.input_size,self.input_size))
+        image_fornet=cv2.resize(image_fornet,(self.input_size[1],self.input_size[0]))
 
         #image_fornet=image_fornet/255.
         start = time.time()
-        for i in range(10):
-            boxes, scores,labels = self._sess.run(
-                self.output_ops, feed_dict={self.input_image: image_fornet,self.training:False}
-            )
+
+        boxes, scores,labels = self._sess.run(
+            self.output_ops, feed_dict={self.input_image: image_fornet,self.training:False})
+
         print('facebox detect cost', time.time() - start)
 
         to_keep = scores > score_threshold
@@ -56,7 +58,7 @@ class FrcnnDetector:
         scores = scores[to_keep]
         labels = labels[to_keep]
         ###recorver to raw image
-        scaler = np.array([w,h,w,h], dtype='float32')/self.input_size
+        scaler = np.array([w,h,w,h], dtype='float32')/ np.array([self.input_size[1],self.input_size[0],self.input_size[1],self.input_size[0]])
         boxes = boxes * scaler
         boxes =boxes-np.array([shift_x, shift_y, shift_x, shift_y], dtype='float32')
 
@@ -64,7 +66,19 @@ class FrcnnDetector:
         #    boxes[i] = np.array([boxes[i][1], boxes[i][0], boxes[i][3],boxes[i][2]])  #####the faceboxe produce ymin,xmin,ymax,xmax
 
 
-        return boxes, scores,labels
+
+        res_boxes=[]
+        res_scores=[]
+        for box_index in range(boxes.shape[0]):
+            label=labels[box_index]
+            bbox = boxes[box_index]
+            score= scores[box_index]
+            if not label==0:
+                res_boxes.append(bbox)
+                res_scores.append(score)
+
+
+        return np.array(res_boxes), np.array(res_scores)
     def Fill_img(self,img_raw,target_height,target_width,label=None):
 
         ###sometimes use in objs detects

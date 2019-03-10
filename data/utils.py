@@ -12,7 +12,8 @@ import copy
 from net.data import *
 from helper.logger import logger
 from data.datainfo import data_info
-from data.augmentor.augmentation import Pixel_jitter,Fill_img,Random_contrast,Random_brightness,Random_scale_withbbox,Random_flip,Blur_aug
+from data.augmentor.augmentation import Pixel_jitter,Fill_img,Random_contrast,\
+    Random_brightness,Random_scale_withbbox,Random_flip,Blur_aug,Rotate_with_box
 
 from train_config import config as cfg
 
@@ -96,6 +97,10 @@ def _data_aug_fn(fname, ground_truth,is_training=True):
                 a=[3,5,7]
                 k=random.sample(a, 1)[0]
                 image=Blur_aug(image,ksize=(k,k))
+            if random.uniform(0, 1) > 0.5:
+                k = random.uniform(-90, 90)
+                image, boxes = Rotate_with_box(image, k, boxes)
+            boxes = np.clip(boxes, 0, cfg.DATA.hin)
 
         boxes=np.clip(boxes,0,cfg.DATA.hin)
         # ###cove the small faces

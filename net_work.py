@@ -331,9 +331,9 @@ class trainner():
             min_loss_control=1000.
             for epoch in range(cfg.TRAIN.epoch):
                 self._train(train_ds,epoch)
-                val_loss=self._val(val_ds,epoch)
-                logger.info('**************'
-                           'val_loss %f '%(val_loss))
+                #val_loss=self._val(val_ds,epoch)
+                # logger.info('**************'
+                #            'val_loss %f '%(val_loss))
 
                 #tmp_model_name=cfg.MODEL.model_path + \
                 #               'epoch_' + str(epoch ) + \
@@ -342,12 +342,11 @@ class trainner():
                 #logger.info('save model as %s \n'%tmp_model_name)
                 #self.saver.save(self.sess, save_path=tmp_model_name)
                 
-                if val_loss<min_loss_control:
-                    min_loss_control=val_loss
+                if 1:
+                    #min_loss_control=val_loss
                     low_loss_model_name = cfg.MODEL.model_path + \
                                      'epoch_' + str(epoch) + \
-                                     'L2_' + str(cfg.TRAIN.weight_decay_factor) + \
-                                     'val_loss' + str(min_loss_control) + '.ckpt'
+                                     'L2_' + str(cfg.TRAIN.weight_decay_factor)  + '.ckpt'
                     logger.info('A new low loss model  saved as %s \n' % low_loss_model_name)
                     self.saver.save(self.sess, save_path=low_loss_model_name)
             # self.coord.request_stop()  # 停止线程
@@ -390,9 +389,6 @@ class trainner():
                     feed_dict[self.inputs[0][n]] = examples['image']
                     feed_dict[self.inputs[1][n]] = examples['gt_boxes']
                     feed_dict[self.inputs[2][n]] = examples['gt_labels']
-
-
-
 
 
                     for k in range(len(cfg.FPN.ANCHOR_STRIDES)):
@@ -461,12 +457,12 @@ class trainner():
                     feed_dict[self.inputs[3][n][2 * k + 1]] = examples['anchor_boxes_lvl{}'.format(k + 2)]
                     # print(examples['anchor_labels_lvl{}'.format(k + 2)].shape)
 
-            feed_dict[self.inputs[4]] = cfg.TRAIN.dropout
-            feed_dict[self.inputs[5]] = cfg.TRAIN.weight_decay_factor
-            feed_dict[self.inputs[6]] = True
+            feed_dict[self.inputs[4]] = 1.
+            feed_dict[self.inputs[5]] = 0.
+            feed_dict[self.inputs[6]] = False
 
             _, total_loss_value, loss_value, l2_loss_value, lr_value = \
-                self.sess.run([*self.outputs],
+                self.sess.run([*self.val_outputs],
                               feed_dict=feed_dict)
 
             all_total_loss+=total_loss_value

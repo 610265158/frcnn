@@ -53,7 +53,7 @@ def fpn_map_rois_to_levels(boxes):
     return level_ids, level_boxes
 
 
-@under_name_scope()
+
 def multilevel_roi_align(features, rcnn_boxes, resolution):
     """
     Args:
@@ -76,6 +76,8 @@ def multilevel_roi_align(features, rcnn_boxes, resolution):
 
     # this can fail if using TF<=1.8 with MKL build
     all_rois = tf.concat(all_rois, axis=0)  # NCHW
+
+
     # Unshuffle to the original order, to match the original samples
     level_id_perm = tf.concat(level_ids, axis=0)  # A permutation of 1~N
     level_id_invert_perm = tf.invert_permutation(level_id_perm)
@@ -174,59 +176,3 @@ def generate_fpn_proposals(
         tf.stop_gradient(proposal_scores, name='scores')
 
 
-
-@under_name_scope()
-def generate_fpn_proposals_(
-        multilevel_pred_boxes, multilevel_label_logits, image_shape2d):
-    """
-    Args:
-        multilevel_pred_boxes: #lvl HxWxAx4 boxes
-        multilevel_label_logits: #lvl tensors of shape HxWxA
-
-    Returns:
-        boxes: kx4 float
-        scores: k logits
-    """
-    num_lvl = len(cfg.FPN.ANCHOR_STRIDES)
-    assert len(multilevel_pred_boxes) == num_lvl
-    assert len(multilevel_label_logits) == num_lvl
-
-    training = get_current_tower_context().is_training
-    all_boxes = []
-    all_scores = []
-    if cfg.FPN.PROPOSAL_MODE == 'Level':
-        fpn_nms_topk = cfg.RPN.TRAIN_PER_LEVEL_NMS_TOPK if training else cfg.RPN.TEST_PER_LEVEL_NMS_TOPK
-        for lvl in range(num_lvl):
-            with tf.name_scope('Lvl{}'.format(lvl + 2)):
-                pred_boxes_decoded = multilevel_pred_boxes[lvl]
-
-                proposal_boxes, proposal_scores = generate_rpn_proposals(
-                    tf.reshape(pred_boxes_decoded, [-1, 4]),
-                    tf.reshape(multilevel_label_logits[lvl], [-1]),
-                    image_shape2d, fpn_nms_topk)
-                all_boxes.append(proposal_boxes)
-                all_scores.append(proposal_scores)
-
-        proposal_boxes = tf.concat(all_boxes, axis=0)  # nx4
-        proposal_scores = tf.concat(all_scores, axis=0)  # n
-        # Here we are different from Detectron.
-        # Detectron picks top-k within the batch, rather than within an image. However we do not have a batch.
-        proposal_topk = tf.minimum(tf.size(proposal_scores), fpn_nms_topk)
-        proposal_scores, topk_indices = tf.nn.top_k(proposal_scores, k=proposal_topk, sorted=False)
-        proposal_boxes = tf.gather(proposal_boxes, topk_indices)
-    else:
-        for lvl in range(num_lvl):
-            with tf.name_scope('Lvl{}'.format(lvl + 2)):
-                pred_boxes_decoded = multilevel_pred_boxes[lvl]
-                all_boxes.append(tf.reshape(pred_boxes_decoded, [-1, 4]))
-                all_scores.append(tf.reshape(multilevel_label_logits[lvl], [-1]))
-        all_boxes = tf.concat(all_boxes, axis=0)
-        all_scores = tf.concat(all_scores, axis=0)
-        proposal_boxes, proposal_scores = generate_rpn_proposals(
-            all_boxes, all_scores, image_shape2d,
-            cfg.RPN.TRAIN_PRE_NMS_TOPK if training else cfg.RPN.TEST_PRE_NMS_TOPK,
-            cfg.RPN.TRAIN_POST_NMS_TOPK if training else cfg.RPN.TEST_POST_NMS_TOPK)
-
-    tf.sigmoid(proposal_scores, name='probs')  # for visualization
-    return tf.stop_gradient(proposal_boxes, name='boxes'), \
-        tf.stop_gradient(proposal_scores, name='scores')
