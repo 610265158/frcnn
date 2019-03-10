@@ -294,7 +294,7 @@ class trainner():
 
             if cfg.MODEL.pretrained_model is not None:
                 #########################restore the params
-                variables_restore = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,scope=cfg.MODEL.net_structure)
+                variables_restore = tf.get_collection(tf.GraphKeys.MODEL_VARIABLES,scope=cfg.MODEL.net_structure)
                 print(variables_restore)
             #    print('......................................................')
             #    # saver2 = tf.train.Saver(variables_restore)
