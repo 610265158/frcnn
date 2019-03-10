@@ -41,7 +41,7 @@ def faceboxes_with_landmark():
 
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         star=time.time()
-        boxes,scores=detector(img,0.9)
+        boxes,scores=detector(img,0.3)
         #print('one iamge cost %f s'%(time.time()-star))
         #print(boxes.shape)
         #print(boxes)  

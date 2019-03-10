@@ -119,10 +119,9 @@ class trainner():
         else:
             ds = MultiThreadMapData(ds, 10, self.val_map_func, buffer_size=100, strict=True)
         #ds = BatchData(ds, cfg.TRAIN.num_gpu * cfg.TRAIN.batch_size, remainder=True,use_list=False)
-        #ds = PrefetchDataZMQ(ds, 2)
-        ds = PrefetchOnGPUs(ds,[0])
+        ds = PrefetchDataZMQ(ds, 2)
         ds.reset_state()
-        ds = ds.get_data()
+        ds=ds.get_data()
 
         ###########
         # ds = data_set.shuffle(buffer_size=512)  # shuffle before loading images

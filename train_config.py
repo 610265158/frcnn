@@ -44,7 +44,7 @@ config.RPN = edict()
 config.RPN.ANCHOR_STRIDE = 16
 #config.RPN.ANCHOR_SIZES = (32, 64, 128, 256, 512)   # sqrtarea of the anchor box
 config.RPN.ANCHOR_SIZES = (16, 32, 64, 128, 256)   # sqrtarea of the anchor box
-config.RPN.ANCHOR_RATIOS = (0.5, 1., 2.)
+config.RPN.ANCHOR_RATIOS = (0.75, 1.,1.25)
 config.RPN.POSITIVE_ANCHOR_THRESH = 0.7
 config.RPN.NEGATIVE_ANCHOR_THRESH = 0.3
 
@@ -67,7 +67,8 @@ config.RPN.TEST_PER_LEVEL_NMS_TOPK = 50
 
 # FPN -------------------------
 config.FPN = edict()
-config.FPN.ANCHOR_STRIDES = (4, 8, 16, 32, 64)  # strides for each FPN level. Must be the same length as ANCHOR_SIZES
+# config.FPN.ANCHOR_STRIDES = (4, 8, 16, 32, 64)  # strides for each FPN level. Must be the same length as ANCHOR_SIZES
+config.FPN.ANCHOR_STRIDES = (8, 16, 32, 64, 128)  # strides for each FPN level. Must be the same length as ANCHOR_SIZES
 config.FPN.PROPOSAL_MODE = 'Level'  # 'Level', 'Joint'
 config.FPN.NUM_CHANNEL = 256//8
 config.FPN.NORM = 'None'  # 'None', 'GN'
@@ -101,10 +102,10 @@ config.DATA.cover_small_face=400.
 config.DATA.PIXEL_MEAN = [123.675, 116.28, 103.53]   ###rgb
 config.DATA.PIXEL_STD = [58.395, 57.12, 57.375]
 
-config.DATA.hin = 480  # input size during training , 240
-config.DATA.win= 640
+config.DATA.hin = 512  # input size during training , 240
+config.DATA.win= 512
 
-config.DATA.MAX_SIZE=720
+config.DATA.MAX_SIZE=640
 
 
 config.BACKBONE = edict()
@@ -112,14 +113,13 @@ config.BACKBONE = edict()
 
 config.MODEL = edict()
 
-config.MODEL.mode=False ###True for train False for eval
+config.MODEL.mode=True ###True for train False for eval
 
 config.MODEL.MODE_MASK = False        # FasterRCNN or MaskRCNN
 config.MODEL.MODE_FPN = True
 
 config.MODEL.model_path = './model/'  # save directory
 
-config.MODEL.net_structure='resnet_v1_50' ######'InceptionResnetV2,resnet_v2_50
-# config.MODEL.pretrained_model=None
-config.MODEL.pretrained_model='./model/epoch_69L2_1e-05.ckpt'
-#
+config.MODEL.net_structure='ShuffleNetV2' ######'InceptionResnetV2,resnet_v2_50
+config.MODEL.pretrained_model=None
+# config.MODEL.pretrained_model='./model/epoch_1L2_1e-05.ckpt'
