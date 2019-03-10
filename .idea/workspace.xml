@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5c5204ba-ab9c-4817-bfc9-2dfbca42d8cb" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/net/simplenet/simple_nn.py" afterPath="$PROJECT_DIR$/net/simplenet/simple_nn.py" />
-      <change beforePath="$PROJECT_DIR$/net_work.py" afterPath="$PROJECT_DIR$/net_work.py" />
-      <change beforePath="$PROJECT_DIR$/train_config.py" afterPath="$PROJECT_DIR$/train_config.py" />
-      <change beforePath="$PROJECT_DIR$/vis.py" afterPath="$PROJECT_DIR$/vis.py" />
+      <change beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -17,11 +13,21 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="train_config.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="train_config.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/train_config.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="295">
+            <state relative-caret-position="2034">
               <caret line="115" column="22" lean-forward="false" selection-start-line="115" selection-start-column="22" selection-end-line="115" selection-end-column="22" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/README.md">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="162">
+              <caret line="9" column="4" lean-forward="false" selection-start-line="9" selection-start-column="4" selection-end-line="9" selection-end-column="4" />
               <folding />
             </state>
           </provider>
@@ -117,6 +123,7 @@
         <option value="$PROJECT_DIR$/vis.py" />
         <option value="$PROJECT_DIR$/net/simplenet/simple_nn.py" />
         <option value="$PROJECT_DIR$/train_config.py" />
+        <option value="$PROJECT_DIR$/README.md" />
       </list>
     </option>
   </component>
@@ -264,7 +271,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="67" y="24" width="1857" height="1092" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24959569" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -302,13 +308,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/net/faster_rcnn.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="172" column="18" lean-forward="false" selection-start-line="172" selection-start-column="18" selection-end-line="172" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/train_config.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -667,8 +666,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/train_config.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="295">
+        <state relative-caret-position="2034">
           <caret line="115" column="22" lean-forward="false" selection-start-line="115" selection-start-column="22" selection-end-line="115" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="162">
+          <caret line="9" column="4" lean-forward="false" selection-start-line="9" selection-start-column="4" selection-end-line="9" selection-end-column="4" />
           <folding />
         </state>
       </provider>
