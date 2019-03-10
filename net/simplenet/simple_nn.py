@@ -10,7 +10,8 @@ def shufflenet_arg_scope(weight_decay=0.00001,
                      batch_norm_epsilon=1e-5,
                      batch_norm_scale=True,
                      use_batch_norm=True,
-                     batch_norm_updates_collections=tf.GraphKeys.UPDATE_OPS):
+                     batch_norm_updates_collections=tf.GraphKeys.UPDATE_OPS,
+                     ):
   """Defines the default ResNet arg scope.
   TODO(gpapan): The batch-normalization related default values above are
     appropriate for use in conjunction with the reference ResNet models
@@ -37,6 +38,7 @@ def shufflenet_arg_scope(weight_decay=0.00001,
       'scale': batch_norm_scale,
       'updates_collections': batch_norm_updates_collections,
       'fused': True,  # Use fused batch norm if possible.
+      'trainable':False
   }
 
   with slim.arg_scope(
@@ -201,21 +203,21 @@ def simple_nn(inputs,L2_reg,training=True):
         with slim.arg_scope([slim.batch_norm], is_training=training):
             with tf.variable_scope('ShuffleNetV2'):
 
-                net = slim.conv2d(inputs, 16, [3, 3],stride=2, activation_fn=tf.nn.relu,
+                net = slim.conv2d(inputs, 24, [3, 3],stride=2, activation_fn=tf.nn.crelu,
                                   normalizer_fn=slim.batch_norm, scope='init_conv')
-                net = tf.nn.max_pool(net, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding="VALID", name='pool1')
+                net = tf.nn.max_pool(net, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding="SAME", name='pool1')
 
-                net = slim.separable_conv2d(net, 24, [3, 3], stride=2, activation_fn=tf.nn.relu,
-                                          normalizer_fn=slim.batch_norm, scope='init_conv_2', depth_multiplier=1)
+                # net = slim.separable_conv2d(net, 48, [3, 3], stride=2, activation_fn=tf.nn.relu,
+                #                           normalizer_fn=slim.batch_norm, scope='init_conv_2', depth_multiplier=1)
                 fms.append(net)
                 print('first conv shape', net.shape)
-                net = block_with_shuffle(net, num_units=2, out_channels=64, scope='Stage2')
+                net = block_plain(net, num_units=2, out_channels=256, scope='Stage2')
                 print('2 conv shape', net.shape)
                 fms.append(net)
-                net = block_with_shuffle(net, num_units=4, out_channels=128, scope='Stage3')
+                net = block_plain(net, num_units=2, out_channels=256, scope='Stage3')
                 print('3 conv shape', net.shape)
                 fms.append(net)
-                net = block_with_shuffle(net, num_units=2, out_channels=256, scope='Stage4')
+                net = block_plain(net, num_units=2, out_channels=256, scope='Stage4')
                 fms.append(net)
                 print('4 conv shape', net.shape)
 

@@ -252,7 +252,35 @@ def get_multilevel_rpn_anchor_input(im, boxes, is_crowd):
 
 
 if __name__ == '__main__':
+
+
     anchors=get_all_anchors_fpn()
+
+
+
+
+
+
+    image=np.ones(shape=[cfg.DATA.MAX_SIZE,cfg.DATA.MAX_SIZE,3])*255
+
 
     for x in anchors:
         print(x.shape)
+
+    anchors=np.array(anchors)
+
+
+
+    for i in range(anchors.shape[0]):
+        for j in range(anchors[i].shape[0]):
+            for k in range(anchors[i][j].shape[0]):
+                for z in range(anchors[i][j][k].shape[0]):
+                    box=anchors[i][j][k][z]
+
+                    #print(box)
+                    cv2.rectangle(image, (int(box[0]), int(box[1])),
+                                  (int(box[2]), int(box[3])), (255, 0, 0), 1)
+
+                    cv2.namedWindow('anchors',0)
+                    cv2.imshow('anchors',image)
+                    cv2.waitKey(0)

@@ -146,14 +146,11 @@ def roi_heads( image, features, proposals, targets,L2_reg,is_training,python_tra
     fastrcnn_head_func = getattr(model_frcnn, cfg.FPN.FRCNN_HEAD_FUNC)
 
     if not cfg.FPN.CASCADE:
-        roi_feature_fastrcnn = multilevel_roi_align(features[:4], proposals.boxes, 7)
-
+        roi_feature_fastrcnn = multilevel_roi_align(features[:4], proposals.boxes, 5)
 
 
         print('roi_feature_fastrcnn',roi_feature_fastrcnn)
         head_feature = fastrcnn_head_func('fastrcnn', roi_feature_fastrcnn,L2_reg,is_training)
-
-
 
         fastrcnn_label_logits, fastrcnn_box_logits = fastrcnn_outputs(
             'fastrcnn/outputs', head_feature, cfg.DATA.NUM_CLASS,L2_reg,is_training)
@@ -161,11 +158,7 @@ def roi_heads( image, features, proposals, targets,L2_reg,is_training,python_tra
         fastrcnn_head = FastRCNNHead(proposals, fastrcnn_box_logits, fastrcnn_label_logits,
                                      gt_boxes, tf.constant(cfg.FRCNN.BBOX_REG_WEIGHTS, dtype=tf.float32))
 
-
-
     if python_training:
-
-
 
         all_losses = fastrcnn_head.losses()       ###add predict nms here
 

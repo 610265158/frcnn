@@ -36,8 +36,6 @@ config.TEST.RESULT_SCORE_THRESH = 0.05
 config.TEST.RESULT_SCORE_THRESH_VIS = 0.3   # only visualize confident results
 config.TEST.RESULTS_PER_IM = 100
 
-
-
 ##RPN
 # anchors -------------------------
 config.RPN = edict()
@@ -67,8 +65,7 @@ config.RPN.TEST_PER_LEVEL_NMS_TOPK = 50
 
 # FPN -------------------------
 config.FPN = edict()
-# config.FPN.ANCHOR_STRIDES = (4, 8, 16, 32, 64)  # strides for each FPN level. Must be the same length as ANCHOR_SIZES
-config.FPN.ANCHOR_STRIDES = (8, 16, 32, 64, 128)  # strides for each FPN level. Must be the same length as ANCHOR_SIZES
+config.FPN.ANCHOR_STRIDES = (4, 8, 16, 32, 64)  # strides for each FPN level. Must be the same length as ANCHOR_SIZES
 config.FPN.PROPOSAL_MODE = 'Level'  # 'Level', 'Joint'
 config.FPN.NUM_CHANNEL = 256//8
 config.FPN.NORM = 'None'  # 'None', 'GN'
@@ -86,7 +83,7 @@ config.FPN.CASCADE = False
 
 
 config.FRCNN = edict()
-config.FRCNN.BATCH_PER_IM = 512//8
+config.FRCNN.BATCH_PER_IM = 512//4
 config.FRCNN.BBOX_REG_WEIGHTS = [10., 10., 5., 5.]  # Better but non-standard setting: [20, 20, 10, 10]
 config.FRCNN.FG_THRESH = 0.5
 config.FRCNN.FG_RATIO = 0.25  # fg ratio in a ROI batch
