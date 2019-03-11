@@ -27,6 +27,8 @@ config.TRAIN.dropout=0.5  ##no use
 config.TRAIN.vis=False
 
 
+config.TRAIN.norm='GN'    ##now Group normalization works best   its the
+
 config.TEST = edict()
 config.TEST.FRCNN_NMS_THRESH = 0.4
 
@@ -119,4 +121,4 @@ config.MODEL.model_path = './model/'  # save directory
 
 config.MODEL.net_structure='ShuffleNetV2' ######'InceptionResnetV2,resnet_v2_50
 # config.MODEL.pretrained_model=None
-config.MODEL.pretrained_model='./model/epoch_1L2_1e-05.ckpt'
+config.MODEL.pretrained_model='./model/epoch_6L2_1e-05.ckpt'
