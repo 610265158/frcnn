@@ -4,7 +4,7 @@ import tensorflow as tf
 import tensorflow.contrib.slim as slim
 from train_config import config as cfg
 
-
+from net.GN import GroupNorm_nhwc
 def shufflenet_arg_scope(weight_decay=0.00001,
                      batch_norm_decay=0.99,
                      batch_norm_epsilon=1e-5,
@@ -48,8 +48,8 @@ def shufflenet_arg_scope(weight_decay=0.00001,
       [slim.conv2d,slim.separable_conv2d],
       weights_regularizer=slim.l2_regularizer(weight_decay),
       weights_initializer=slim.variance_scaling_initializer(),
-      normalizer_fn=slim.batch_norm if use_batch_norm else None,
-      normalizer_params=batch_norm_params):
+      normalizer_fn=GroupNorm_nhwc,
+      normalizer_params=None):
     with slim.arg_scope([slim.batch_norm], **batch_norm_params):
       # The following implies padding='SAME' for pool1, which makes feature
       # alignment easier for dense prediction tasks. This is also used in

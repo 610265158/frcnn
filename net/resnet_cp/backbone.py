@@ -28,10 +28,10 @@ def create_global_net(blocks, L2_reg,is_training, trainable=True,data_format='NH
             if last_fm is not None:
 
                 upsample = tf.keras.layers.UpSampling2D(data_format='channels_last' if data_format=='NHWC' else 'channels_first')(last_fm)
-                upsample = slim.conv2d(upsample, 10, [1, 1],
-                    trainable=trainable, weights_initializer=initializer,
-                    padding='SAME', activation_fn=None,
-                    scope='merge/res{}'.format(5-i),data_format=data_format)
+                # upsample = slim.conv2d(upsample, 10, [1, 1],
+                #     trainable=trainable, weights_initializer=initializer,
+                #     padding='SAME', activation_fn=None,
+                #     scope='merge/res{}'.format(5-i),data_format=data_format)
 
                 last_fm = upsample + lateral
             else:

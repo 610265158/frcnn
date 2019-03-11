@@ -8,6 +8,8 @@ from tensorflow.contrib.layers.python.layers import regularizers, \
     initializers, layers
 from train_config import config
 
+
+from net.GN import GroupNorm_nhwc
 def resnet_arg_scope(bn_is_training,
                      bn_trainable,
                      trainable=True,
@@ -27,13 +29,13 @@ def resnet_arg_scope(bn_is_training,
     }
 
     with arg_scope(
-            [slim.conv2d],
+            [slim.conv2d,slim.separable_conv2d],
             weights_regularizer=regularizers.l2_regularizer(weight_decay),
             weights_initializer=initializers.variance_scaling_initializer(),
             trainable=trainable,
             activation_fn=nn_ops.relu,
-            normalizer_fn=layers.batch_norm,
-            normalizer_params=batch_norm_params,
+            normalizer_fn=GroupNorm_nhwc,
+            normalizer_params=None,
             data_format=data_format):
         with arg_scope(
                 [layers.batch_norm,layers.max_pool2d], data_format=data_format):
