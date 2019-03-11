@@ -82,12 +82,12 @@ def resnet50(image, L2_reg,bn_is_training, bn_trainable,data_format='NHWC'):
         net3, _ = resnet_v1.resnet_v1(
             net2, blocks[2:3],
             global_pool=False, include_root_block=False,
-            scope='changed_resnet_v1_50')
+            scope='resnet_v1_50')
     with slim.arg_scope(resnet_arg_scope(weight_decay=L2_reg,bn_is_training=bn_is_training, bn_trainable=bn_trainable,data_format=data_format)):
         net4, _ = resnet_v1.resnet_v1(
             net3, blocks[3:4],
             global_pool=False, include_root_block=False,
-            scope='changed_resnet_v1_50')
+            scope='resnet_v1_50')
 
     resnet_features = [net, net2, net3, net4]
     return resnet_features
