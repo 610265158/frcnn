@@ -2,20 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5c5204ba-ab9c-4817-bfc9-2dfbca42d8cb" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/net/GN.py" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/net/resnet/__init__.py" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/net/resnet/backbone.py" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/net/resnet/basemodel.py" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/net/resnet/resnet_utils.py" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/net/resnet/resnet_v1.py" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/net/GN.py" afterPath="$PROJECT_DIR$/net/GN.py" />
       <change beforePath="$PROJECT_DIR$/net/resnet_cp/backbone.py" afterPath="$PROJECT_DIR$/net/resnet_cp/backbone.py" />
-      <change beforePath="$PROJECT_DIR$/net/resnet_cp/basemodel.py" afterPath="$PROJECT_DIR$/net/resnet_cp/basemodel.py" />
-      <change beforePath="$PROJECT_DIR$/net/simplenet/backbone.py" afterPath="$PROJECT_DIR$/net/simplenet/backbone.py" />
-      <change beforePath="$PROJECT_DIR$/net/simplenet/simple_nn.py" afterPath="$PROJECT_DIR$/net/simplenet/simple_nn.py" />
       <change beforePath="$PROJECT_DIR$/net_work.py" afterPath="$PROJECT_DIR$/net_work.py" />
-      <change beforePath="$PROJECT_DIR$/train_config.py" afterPath="$PROJECT_DIR$/train_config.py" />
-      <change beforePath="$PROJECT_DIR$/vis.py" afterPath="$PROJECT_DIR$/vis.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -26,7 +15,7 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="basemodel.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="basemodel.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/net/resnet_cp/basemodel.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="450">
@@ -36,21 +25,33 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="train_config.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/train_config.py">
+      <file leaf-file-name="GN.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/net/GN.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="235">
-              <caret line="90" column="21" lean-forward="true" selection-start-line="90" selection-start-column="21" selection-end-line="90" selection-end-column="21" />
+            <state relative-caret-position="684">
+              <caret line="38" column="37" lean-forward="false" selection-start-line="34" selection-start-column="0" selection-end-line="46" selection-end-column="23" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="backbone.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/net/resnet_cp/backbone.py">
+      <file leaf-file-name="net_work.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/net_work.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="18">
-              <caret line="10" column="33" lean-forward="false" selection-start-line="10" selection-start-column="27" selection-end-line="10" selection-end-column="43" />
+            <state relative-caret-position="331">
+              <caret line="301" column="42" lean-forward="false" selection-start-line="301" selection-start-column="42" selection-end-line="301" selection-end-column="42" />
+              <folding>
+                <element signature="e#22#45#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="train_config.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/train_config.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="235">
+              <caret line="90" column="21" lean-forward="true" selection-start-line="90" selection-start-column="21" selection-end-line="90" selection-end-column="21" />
               <folding />
             </state>
           </provider>
@@ -99,14 +100,14 @@
         <option value="$PROJECT_DIR$/net/model_rpn.py" />
         <option value="$PROJECT_DIR$/net/faster_rcnn.py" />
         <option value="$PROJECT_DIR$/net/data.py" />
-        <option value="$PROJECT_DIR$/net/GN.py" />
         <option value="$PROJECT_DIR$/net/simplenet/backbone.py" />
         <option value="$PROJECT_DIR$/net/simplenet/simple_nn.py" />
-        <option value="$PROJECT_DIR$/net/resnet_cp/backbone.py" />
         <option value="$PROJECT_DIR$/train_config.py" />
         <option value="$PROJECT_DIR$/vis.py" />
-        <option value="$PROJECT_DIR$/net_work.py" />
         <option value="$PROJECT_DIR$/net/resnet_cp/basemodel.py" />
+        <option value="$PROJECT_DIR$/net/GN.py" />
+        <option value="$PROJECT_DIR$/net_work.py" />
+        <option value="$PROJECT_DIR$/net/resnet_cp/backbone.py" />
       </list>
     </option>
   </component>
@@ -143,12 +144,6 @@
               <item name="frcnn" type="b2602c69:ProjectViewProjectNode" />
               <item name="frcnn" type="462c0819:PsiDirectoryNode" />
               <item name="net" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="frcnn" type="b2602c69:ProjectViewProjectNode" />
-              <item name="frcnn" type="462c0819:PsiDirectoryNode" />
-              <item name="net" type="462c0819:PsiDirectoryNode" />
-              <item name="resnet_cp" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -565,14 +560,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/net/GN.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="810">
-          <caret line="45" column="0" lean-forward="false" selection-start-line="45" selection-start-column="0" selection-end-line="45" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/net/faster_rcnn.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="612">
@@ -613,14 +600,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/net_work.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/vis.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="422">
@@ -629,26 +608,44 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/train_config.py">
+    <entry file="file://$PROJECT_DIR$/net/resnet_cp/basemodel.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="235">
-          <caret line="90" column="21" lean-forward="true" selection-start-line="90" selection-start-column="21" selection-end-line="90" selection-end-column="21" />
+        <state relative-caret-position="450">
+          <caret line="36" column="40" lean-forward="false" selection-start-line="36" selection-start-column="26" selection-end-line="36" selection-end-column="40" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/net/GN.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="684">
+          <caret line="38" column="37" lean-forward="false" selection-start-line="34" selection-start-column="0" selection-end-line="46" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/net_work.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="331">
+          <caret line="301" column="42" lean-forward="false" selection-start-line="301" selection-start-column="42" selection-end-line="301" selection-end-column="42" />
+          <folding>
+            <element signature="e#22#45#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/net/resnet_cp/backbone.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="18">
-          <caret line="10" column="33" lean-forward="false" selection-start-line="10" selection-start-column="27" selection-end-line="10" selection-end-column="43" />
+        <state relative-caret-position="234">
+          <caret line="22" column="43" lean-forward="false" selection-start-line="22" selection-start-column="43" selection-end-line="22" selection-end-column="43" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/net/resnet_cp/basemodel.py">
+    <entry file="file://$PROJECT_DIR$/train_config.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="36" column="40" lean-forward="false" selection-start-line="36" selection-start-column="26" selection-end-line="36" selection-end-column="40" />
+        <state relative-caret-position="235">
+          <caret line="90" column="21" lean-forward="true" selection-start-line="90" selection-start-column="21" selection-end-line="90" selection-end-column="21" />
           <folding />
         </state>
       </provider>

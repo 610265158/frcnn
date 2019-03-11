@@ -299,7 +299,7 @@ class trainner():
             #    print('......................................................')
             #    # saver2 = tf.train.Saver(variables_restore)
                 variables_restore_n = [v for v in variables_restore if
-                                       'BatchNorm' not in v.name]  # Conv2d_1c_1x1 Bottleneck
+                                       'GN' not in v.name]  # Conv2d_1c_1x1 Bottleneck
                 # print(variables_restore_n)
                 saver2 = tf.train.Saver(variables_restore_n)
                 saver2.restore(self.sess, cfg.MODEL.pretrained_model)

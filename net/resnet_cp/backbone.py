@@ -20,7 +20,7 @@ def create_global_net(blocks, L2_reg,is_training, trainable=True,data_format='NH
     initializer = tf.contrib.layers.xavier_initializer()
     for i, block in enumerate(reversed(blocks)):
         with slim.arg_scope(resnet_arg_scope(weight_decay=L2_reg,bn_is_training=is_training,data_format=data_format)):
-            lateral = slim.conv2d(block, 10, [1, 1],
+            lateral = slim.conv2d(block, 16, [1, 1],
                 trainable=trainable, weights_initializer=initializer,
                 padding='SAME', activation_fn=tf.nn.relu,
                 scope='lateral/res{}'.format(5-i))
