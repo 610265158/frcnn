@@ -101,8 +101,8 @@ config.DATA.cover_small_face=400.
 config.DATA.PIXEL_MEAN = [123.675, 116.28, 103.53]   ###rgb
 config.DATA.PIXEL_STD = [58.395, 57.12, 57.375]
 
-config.DATA.hin = 512  # input size during training , 240
-config.DATA.win= 512
+config.DATA.hin = 416  # input size during training , 240
+config.DATA.win= 416
 
 config.DATA.MAX_SIZE=640
 
@@ -121,4 +121,4 @@ config.MODEL.model_path = './model/'  # save directory
 
 config.MODEL.net_structure='ShuffleNetV2' ######'InceptionResnetV2,resnet_v2_50
 # config.MODEL.pretrained_model=None
-config.MODEL.pretrained_model='./model/epoch_6L2_1e-05.ckpt'
+config.MODEL.pretrained_model='./model/epoch_25L2_1e-05.ckpt'

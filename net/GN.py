@@ -34,6 +34,8 @@ def GroupNorm_nchw(x, group=32, gamma_initializer=tf.constant_initializer(1.)):
 
 def GroupNorm_nhwc(x,G=16,eps=1e-5,gamma_initializer=tf.constant_initializer(1.)):
 
+
+
     with tf.variable_scope('GN'):
         N,H,W,C=x.get_shape().as_list()
         x=tf.reshape(x,[tf.cast(N,tf.int32),tf.cast(H,tf.int32),tf.cast(W,tf.int32),tf.cast(G,tf.int32),tf.cast(C//G,tf.int32)])

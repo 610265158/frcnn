@@ -2,6 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5c5204ba-ab9c-4817-bfc9-2dfbca42d8cb" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change beforePath="$PROJECT_DIR$/net/GN.py" afterPath="$PROJECT_DIR$/net/GN.py" />
+      <change beforePath="$PROJECT_DIR$/net/simplenet/simple_nn.py" afterPath="$PROJECT_DIR$/net/simplenet/simple_nn.py" />
       <change beforePath="$PROJECT_DIR$/train_config.py" afterPath="$PROJECT_DIR$/train_config.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -16,39 +19,31 @@
       <file leaf-file-name="faster_rcnn.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/net/faster_rcnn.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="684">
+            <state relative-caret-position="2358">
               <caret line="148" column="37" lean-forward="false" selection-start-line="148" selection-start-column="31" selection-end-line="148" selection-end-column="51" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="model_fpn.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/net/model_fpn.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="630">
-              <caret line="49" column="37" lean-forward="false" selection-start-line="49" selection-start-column="24" selection-end-line="49" selection-end-column="37" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="train_config.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="train_config.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/train_config.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="793">
-              <caret line="123" column="46" lean-forward="false" selection-start-line="123" selection-start-column="46" selection-end-line="123" selection-end-column="46" />
+            <state relative-caret-position="779">
+              <caret line="123" column="47" lean-forward="false" selection-start-line="123" selection-start-column="47" selection-end-line="123" selection-end-column="47" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="simple_nn.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="simple_nn.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/net/simplenet/simple_nn.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="523">
-              <caret line="215" column="48" lean-forward="false" selection-start-line="215" selection-start-column="48" selection-end-line="215" selection-end-column="48" />
-              <folding />
+            <state relative-caret-position="361">
+              <caret line="198" column="47" lean-forward="true" selection-start-line="198" selection-start-column="47" selection-end-line="198" selection-end-column="47" />
+              <folding>
+                <element signature="e#21#44#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -97,12 +92,12 @@
         <option value="$PROJECT_DIR$/net/faster_rcnn.py" />
         <option value="$PROJECT_DIR$/net/data.py" />
         <option value="$PROJECT_DIR$/net/simplenet/backbone.py" />
-        <option value="$PROJECT_DIR$/net/simplenet/simple_nn.py" />
         <option value="$PROJECT_DIR$/vis.py" />
-        <option value="$PROJECT_DIR$/net/GN.py" />
         <option value="$PROJECT_DIR$/net_work.py" />
         <option value="$PROJECT_DIR$/net/resnet_cp/backbone.py" />
         <option value="$PROJECT_DIR$/net/resnet_cp/basemodel.py" />
+        <option value="$PROJECT_DIR$/net/GN.py" />
+        <option value="$PROJECT_DIR$/net/simplenet/simple_nn.py" />
         <option value="$PROJECT_DIR$/train_config.py" />
       </list>
     </option>
@@ -128,6 +123,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
       <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
@@ -151,11 +147,10 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../FACE/INFERENCE" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -407,13 +402,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/net/resnet/backbone.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="21" column="44" lean-forward="false" selection-start-line="21" selection-start-column="28" selection-end-line="21" selection-end-column="44" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/net/resnet/backbone.py" />
     <entry file="file://$PROJECT_DIR$/net/faster_rcnn.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3726">
@@ -435,20 +424,8 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/net/resnet/basemodel.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-100">
-          <caret line="82" column="61" lean-forward="false" selection-start-line="82" selection-start-column="61" selection-end-line="82" selection-end-column="61" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/net/resnet/backbone.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="54">
-          <caret line="21" column="44" lean-forward="false" selection-start-line="21" selection-start-column="28" selection-end-line="21" selection-end-column="44" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/net/resnet/basemodel.py" />
+    <entry file="file://$PROJECT_DIR$/net/resnet/backbone.py" />
     <entry file="file://$PROJECT_DIR$/release.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="451">
@@ -559,7 +536,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
           <caret line="17" column="23" lean-forward="false" selection-start-line="17" selection-start-column="16" selection-end-line="17" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -567,7 +543,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="422">
           <caret line="5693" column="16" lean-forward="false" selection-start-line="5693" selection-start-column="5" selection-end-line="5693" selection-end-column="20" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -575,7 +550,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="422">
           <caret line="43" column="37" lean-forward="false" selection-start-line="43" selection-start-column="37" selection-end-line="43" selection-end-column="37" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -583,7 +557,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="234">
           <caret line="22" column="43" lean-forward="false" selection-start-line="22" selection-start-column="43" selection-end-line="22" selection-end-column="43" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -591,7 +564,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1080">
           <caret line="89" column="31" lean-forward="false" selection-start-line="89" selection-start-column="31" selection-end-line="89" selection-end-column="31" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -599,17 +571,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="331">
           <caret line="301" column="42" lean-forward="false" selection-start-line="301" selection-start-column="42" selection-end-line="301" selection-end-column="42" />
-          <folding>
-            <element signature="e#22#45#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/net/GN.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="684">
-          <caret line="38" column="37" lean-forward="false" selection-start-line="34" selection-start-column="0" selection-end-line="46" selection-end-column="23" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -617,15 +578,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="278">
           <caret line="27" column="0" lean-forward="false" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/net/faster_rcnn.py">
+    <entry file="file://$PROJECT_DIR$/net/GN.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="684">
-          <caret line="148" column="37" lean-forward="false" selection-start-line="148" selection-start-column="31" selection-end-line="148" selection-end-column="51" />
-          <folding />
+        <state relative-caret-position="666">
+          <caret line="37" column="0" lean-forward="false" selection-start-line="37" selection-start-column="0" selection-end-line="37" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -633,23 +592,32 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="630">
           <caret line="49" column="37" lean-forward="false" selection-start-line="49" selection-start-column="24" selection-end-line="49" selection-end-column="37" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/net/simplenet/simple_nn.py">
+    <entry file="file://$PROJECT_DIR$/net/faster_rcnn.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="523">
-          <caret line="215" column="48" lean-forward="false" selection-start-line="215" selection-start-column="48" selection-end-line="215" selection-end-column="48" />
+        <state relative-caret-position="2358">
+          <caret line="148" column="37" lean-forward="false" selection-start-line="148" selection-start-column="31" selection-end-line="148" selection-end-column="51" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/train_config.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="793">
-          <caret line="123" column="46" lean-forward="false" selection-start-line="123" selection-start-column="46" selection-end-line="123" selection-end-column="46" />
+        <state relative-caret-position="779">
+          <caret line="123" column="47" lean-forward="false" selection-start-line="123" selection-start-column="47" selection-end-line="123" selection-end-column="47" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/net/simplenet/simple_nn.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="361">
+          <caret line="198" column="47" lean-forward="true" selection-start-line="198" selection-start-column="47" selection-end-line="198" selection-end-column="47" />
+          <folding>
+            <element signature="e#21#44#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

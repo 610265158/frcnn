@@ -4,6 +4,9 @@ import tensorflow as tf
 import tensorflow.contrib.slim as slim
 from train_config import config as cfg
 
+
+
+
 from net.GN import GroupNorm_nhwc
 def shufflenet_arg_scope(weight_decay=0.00001,
                      batch_norm_decay=0.99,
@@ -83,35 +86,27 @@ def concat_shuffle_split(x, y):
 def basic_unit(x):
     in_channels = x.shape[3].value
 
-    x = slim.conv2d(x, in_channels, [1, 1], stride=1, activation_fn=tf.nn.relu,
-                normalizer_fn=slim.batch_norm, scope='conv1x1_before')
+    x = slim.conv2d(x, in_channels, [1, 1], stride=1, activation_fn=tf.nn.relu, scope='conv1x1_before')
 
-    x = slim.separable_conv2d(x, in_channels, [3, 3], stride=1, activation_fn=None,
-                              normalizer_fn=slim.batch_norm, scope='depthwise', depth_multiplier=1)
+    x = slim.separable_conv2d(x, in_channels, [3, 3], stride=1, activation_fn=None, scope='depthwise', depth_multiplier=1)
 
-    x = slim.conv2d(x, in_channels, [1, 1], stride=1, activation_fn=tf.nn.relu,
-                    normalizer_fn=slim.batch_norm, scope='conv1x1_after')
+    x = slim.conv2d(x, in_channels, [1, 1], stride=1, activation_fn=tf.nn.relu, scope='conv1x1_after')
     return x
 #### a depwise conv unit with downsampling
 def basic_unit_with_downsampling(x,out_channels=None):
     in_channels = x.shape[3].value
     out_channels = 2 * in_channels if out_channels is None else out_channels
 
-    y = slim.conv2d(x, in_channels, [1, 1], stride=1, activation_fn=tf.nn.relu,
-                      normalizer_fn=slim.batch_norm, scope='conv1x1_before')
+    y = slim.conv2d(x, in_channels, [1, 1], stride=1, activation_fn=tf.nn.relu, scope='conv1x1_before')
 
-    y = slim.separable_conv2d(y, in_channels, [3, 3], stride=2, activation_fn=None,
-                    normalizer_fn=slim.batch_norm, scope='depthwise',depth_multiplier=1)
+    y = slim.separable_conv2d(y, in_channels, [3, 3], stride=2, activation_fn=None, scope='depthwise',depth_multiplier=1)
 
-    y = slim.conv2d(y, out_channels//2, [1, 1], stride=1, activation_fn=tf.nn.relu,
-                    normalizer_fn=slim.batch_norm, scope='conv1x1_after')
+    y = slim.conv2d(y, out_channels//2, [1, 1], stride=1, activation_fn=tf.nn.relu, scope='conv1x1_after')
 
 
     with tf.variable_scope('second_branch'):
-        x = slim.separable_conv2d(x, in_channels, [3, 3], stride=2, activation_fn=None,
-                                  normalizer_fn=slim.batch_norm, scope='depthwise',depth_multiplier=1)
-        x = slim.conv2d(x, out_channels // 2, [1, 1], stride=1, activation_fn=tf.nn.relu,
-                        normalizer_fn=slim.batch_norm, scope='conv1x1_after')
+        x = slim.separable_conv2d(x, in_channels, [3, 3], stride=2, activation_fn=None, scope='depthwise',depth_multiplier=1)
+        x = slim.conv2d(x, out_channels // 2, [1, 1], stride=1, activation_fn=tf.nn.relu, scope='conv1x1_after')
 
 
     return x,y
@@ -120,8 +115,7 @@ def basic_unit_with_downsampling(x,out_channels=None):
 def basic_unit_plain(x):
     in_channels = x.shape[3].value
 
-    x = slim.conv2d(x, in_channels, [3, 3], stride=1, activation_fn=tf.nn.relu,
-                normalizer_fn=slim.batch_norm, scope='conv1x1_before')
+    x = slim.conv2d(x, in_channels, [3, 3], stride=1, activation_fn=tf.nn.relu, scope='conv1x1_before')
 
     return x
 
@@ -130,12 +124,10 @@ def basic_unit_with_downsampling_plain(x,out_channels=None):
     in_channels = x.shape[3].value
     out_channels = 2 * in_channels if out_channels is None else out_channels
 
-    y = slim.conv2d(x, out_channels//2, [3, 3], stride=2, activation_fn=tf.nn.relu,
-                      normalizer_fn=slim.batch_norm, scope='conv1x1_before')
+    y = slim.conv2d(x, out_channels//2, [3, 3], stride=2, activation_fn=tf.nn.relu, scope='conv1x1_before')
 
     with tf.variable_scope('second_branch'):
-        x = slim.conv2d(x, out_channels // 2, [1, 1], stride=1, activation_fn=tf.nn.relu,
-                        normalizer_fn=slim.batch_norm, scope='conv1x1_after')
+        x = slim.conv2d(x, out_channels // 2, [1, 1], stride=1, activation_fn=tf.nn.relu, scope='conv1x1_after')
         x = tf.nn.max_pool(x, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding="SAME", name='conv1x1_after_pool')
     x = tf.concat([x, y], axis=3)
     return x
@@ -206,21 +198,21 @@ def simple_nn(inputs,L2_reg,training=True):
 
         with tf.variable_scope('ShuffleNetV2'):
 
-            net = slim.conv2d(inputs, 24, [3, 3],stride=2, activation_fn=tf.nn.crelu,
-                              normalizer_fn=slim.batch_norm, scope='init_conv')
+            net = slim.conv2d(inputs, 16, [3, 3],stride=2, activation_fn=tf.nn.crelu, scope='init_conv')
+
             net = tf.nn.max_pool(net, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding="SAME", name='pool1')
 
             # net = slim.separable_conv2d(net, 48, [3, 3], stride=2, activation_fn=tf.nn.relu,
             #                           normalizer_fn=slim.batch_norm, scope='init_conv_2', depth_multiplier=1)
             fms.append(net)
             print('first conv shape', net.shape)
-            net = block_plain(net, num_units=2, out_channels=48, scope='Stage2')
+            net = block_plain(net, num_units=2, out_channels=64, scope='Stage2')
             print('2 conv shape', net.shape)
             fms.append(net)
-            net = block_plain(net, num_units=2, out_channels=96, scope='Stage3')
+            net = block_plain(net, num_units=2, out_channels=128, scope='Stage3')
             print('3 conv shape', net.shape)
             fms.append(net)
-            net = block_plain(net, num_units=2, out_channels=128, scope='Stage4')
+            net = block_plain(net, num_units=2, out_channels=256, scope='Stage4')
             fms.append(net)
             print('4 conv shape', net.shape)
 
