@@ -23,7 +23,7 @@ def GetFileList(dir, fileList):
     return fileList
 
 
-def faceboxes_with_landmark():
+def facedetect():
     count = 0
     data_dir = '/home/lz/FACE/widerface/img'
 
@@ -61,6 +61,38 @@ def faceboxes_with_landmark():
         cv2.waitKey(0)
     print(count)
 
+def video_demo():
+    video_path = './test5.mp4'
+
+    videoWriter = cv2.VideoWriter('tp.avi', cv2.VideoWriter_fourcc("I", "4", "2", "0"), 10, (640, 480))
+    vide_capture = cv2.VideoCapture(video_path)
+    vide_capture.set(3, 1280)
+    vide_capture.set(4, 720)
+
+
+    while 1:
+
+        ret, img = vide_capture.read()
+        img_show = img.copy()
+
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        star = time.time()
+        boxes, scores = detector(img, 0.9)
+        # print('one iamge cost %f s'%(time.time()-star))
+        # print(boxes.shape)
+        # print(boxes)
+        ################toxml or json
+
+        for box_index in range(boxes.shape[0]):
+            bbox = boxes[box_index]
+
+            cv2.rectangle(img_show, (int(bbox[0]), int(bbox[1])),
+                          (int(bbox[2]), int(bbox[3])), (255, 0, 0), 4)
+
+        cv2.namedWindow('res', 0)
+        cv2.imshow('res', img_show)
+        cv2.waitKey(1)
+
 
 if __name__=='__main__':
-    faceboxes_with_landmark()
+    video_demo()

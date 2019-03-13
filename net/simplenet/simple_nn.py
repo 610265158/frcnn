@@ -52,7 +52,8 @@ def shufflenet_arg_scope(weight_decay=0.00001,
       weights_regularizer=slim.l2_regularizer(weight_decay),
       weights_initializer=slim.variance_scaling_initializer(),
       normalizer_fn=GroupNorm_nhwc,
-      normalizer_params=None):
+      normalizer_params=None,
+      biases_initializer=None):
     with slim.arg_scope([slim.batch_norm], **batch_norm_params):
       # The following implies padding='SAME' for pool1, which makes feature
       # alignment easier for dense prediction tasks. This is also used in
@@ -206,10 +207,10 @@ def simple_nn(inputs,L2_reg,training=True):
             #                           normalizer_fn=slim.batch_norm, scope='init_conv_2', depth_multiplier=1)
             fms.append(net)
             print('first conv shape', net.shape)
-            net = block_plain(net, num_units=2, out_channels=64, scope='Stage2')
+            net = block_plain(net, num_units=1, out_channels=256, scope='Stage2')
             print('2 conv shape', net.shape)
             fms.append(net)
-            net = block_plain(net, num_units=2, out_channels=128, scope='Stage3')
+            net = block_plain(net, num_units=2, out_channels=256, scope='Stage3')
             print('3 conv shape', net.shape)
             fms.append(net)
             net = block_plain(net, num_units=2, out_channels=256, scope='Stage4')

@@ -292,6 +292,16 @@ class trainner():
             self.sess = tf.Session(config=tf_config)
             self.sess.run(init)
 
+
+
+            if cfg.MODEL.continue_train is not None:
+                #########################restore the params
+                variables_restore = tf.get_collection(tf.GraphKeys.MODEL_VARIABLES)
+                print(variables_restore)
+
+                saver2 = tf.train.Saver(variables_restore)
+                saver2.restore(self.sess, cfg.MODEL.pretrained_model)
+
             if cfg.MODEL.pretrained_model is not None:
                 #########################restore the params
                 variables_restore = tf.get_collection(tf.GraphKeys.MODEL_VARIABLES,scope=cfg.MODEL.net_structure)

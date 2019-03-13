@@ -20,7 +20,7 @@ def rpn_head(scope_str,featuremap, channel, num_anchors,L2_reg,training):
         with slim.arg_scope([slim.batch_norm], is_training=training):
             with tf.variable_scope(scope_str):
                 hidden = slim.conv2d(featuremap, channel, [3, 3], stride=1, activation_fn=tf.nn.relu,
-                                  normalizer_fn=slim.batch_norm, scope='conv0')
+                                     biases_initializer=None,scope='conv0')
 
                 label_logits =slim.conv2d(hidden, num_anchors, [1, 1], stride=1, activation_fn=None,
                                   normalizer_fn=None, scope='class')

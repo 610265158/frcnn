@@ -100,7 +100,7 @@ def _data_aug_fn(fname, ground_truth,is_training=True):
             if random.uniform(0, 1) > 0.5:
                 k = random.uniform(-90, 90)
                 image, boxes = Rotate_with_box(image, k, boxes)
-            boxes = np.clip(boxes, 0, cfg.DATA.hin)
+
 
         boxes=np.clip(boxes,0,cfg.DATA.hin)
         # ###cove the small faces
@@ -114,12 +114,12 @@ def _data_aug_fn(fname, ground_truth,is_training=True):
         #         boxes_clean.append(box)
         boxes=np.array(boxes,dtype=np.float32)
         boxes_refine=np.zeros_like(boxes)
-        boxes_refine[:,0]=boxes[:,1]
+        boxes_refine[:, 0] = boxes[:,1]
         boxes_refine[:, 1] = boxes[:, 0]
         boxes_refine[:, 2] = boxes[:, 3]
         boxes_refine[:, 3] = boxes[:, 2]
 
-        #image = image.astype(np.float32)/255.
+
         crowd=np.zeros(shape=[boxes_refine.shape[0]])
         klass=np.ones(shape=[boxes_refine.shape[0]])
 

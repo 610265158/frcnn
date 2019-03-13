@@ -17,6 +17,10 @@ from net.model_frcnn import BoxProposals, FastRCNNHead, fastrcnn_outputs, fastrc
 
 
 import tensorflow.contrib.slim as slim
+
+
+
+from net.GN import GroupNorm_nhwc
 def fasterrcnn_arg_scope(weight_decay=0.00001,
                      batch_norm_decay=0.99,
                      batch_norm_epsilon=1e-5,
@@ -55,8 +59,8 @@ def fasterrcnn_arg_scope(weight_decay=0.00001,
       [slim.conv2d,slim.separable_conv2d],
       weights_regularizer=slim.l2_regularizer(weight_decay),
       weights_initializer=slim.variance_scaling_initializer(),
-      normalizer_fn=slim.batch_norm if use_batch_norm else None,
-      normalizer_params=batch_norm_params,
+      normalizer_fn=GroupNorm_nhwc,
+      normalizer_params=None,
       data_format='NHWC'):
     with slim.arg_scope([slim.batch_norm], **batch_norm_params):
       # The following implies padding='SAME' for pool1, which makes feature
@@ -65,7 +69,7 @@ def fasterrcnn_arg_scope(weight_decay=0.00001,
       # code of 'Deep Residual Learning for Image Recognition' uses
       # padding='VALID' for pool1. You can switch to that choice by setting
       # slim.arg_scope([slim.max_pool2d], padding='VALID').
-      with slim.arg_scope([slim.max_pool2d], padding='SAME',data_formate='NCHW') as arg_sc:
+      with slim.arg_scope([slim.max_pool2d], padding='SAME',data_formate='NHWC') as arg_sc:
         return arg_sc
 
 

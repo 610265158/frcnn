@@ -275,7 +275,7 @@ if __name__ == '__main__':
         for j in range(anchors[i].shape[0]):
             for k in range(anchors[i][j].shape[0]):
                 for z in range(anchors[i][j][k].shape[0]):
-                    box=anchors[i][j][k][z]
+                    box=anchors[i][j+100][k][z]
 
                     #print(box)
                     cv2.rectangle(image, (int(box[0]), int(box[1])),

@@ -49,7 +49,7 @@ def freeze_graph(model_folder):
 
         [print(n.name) for n in tf.get_default_graph().as_graph_def().node]
 
-        output_graph_def = graph_util.convert_variables_to_constants(  # 模型持久化，将变量值固定
+        output_graph_def = tf.compat.v1.graph_util.convert_variables_to_constants(  # 模型持久化，将变量值固定
             sess,
             input_graph_def,
             output_node_names.split(",")  # 如果有多个输出节点，以逗号隔开
