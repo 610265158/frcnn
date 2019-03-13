@@ -294,7 +294,7 @@ class trainner():
 
 
 
-            if cfg.MODEL.continue_train is not None:
+            if cfg.MODEL.continue_train:
                 #########################restore the params
                 variables_restore = tf.get_collection(tf.GraphKeys.MODEL_VARIABLES)
                 print(variables_restore)

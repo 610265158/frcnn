@@ -12,7 +12,7 @@ config.TRAIN.num_gpu = 4
 config.TRAIN.batch_size = 1
 config.TRAIN.log_interval = 10
 config.TRAIN.epoch = 2000
-config.TRAIN.train_set_size=10000  ###########u need be sure
+config.TRAIN.train_set_size=16000  ###########u need be sure
 config.TRAIN.val_set_size=1000
 config.TRAIN.iter_num_per_epoch = config.TRAIN.train_set_size // config.TRAIN.num_gpu // config.TRAIN.batch_size
 
