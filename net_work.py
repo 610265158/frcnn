@@ -182,7 +182,7 @@ class trainner():
             tower_grads = []
             with tf.variable_scope(tf.get_variable_scope()):
                 for i in range(cfg.TRAIN.num_gpu):
-                    with tf.device('/gpu:%d' % i):
+                    with tf.device('/gpu:%d' % 0):
                         with tf.name_scope('lztower_%d' % (i)) as scope:
                             with slim.arg_scope([slim.model_variable, slim.variable], device='/cpu:0'):
 

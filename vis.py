@@ -5,7 +5,7 @@ import numpy as np
 from api.frcnn_detector import FrcnnDetector
 from tools.to_lableimg import to_xml
 from tools.to_labelme import to_json
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 detector = FrcnnDetector('./model/detector.pb')
 
 import os
@@ -25,7 +25,7 @@ def GetFileList(dir, fileList):
 
 def facedetect():
     count = 0
-    data_dir = '/home/lz/FACE/widerface/img'
+    data_dir = '/home/lz/coco_data/fddb_facetrain/images'
 
     pics = []
     GetFileList(data_dir,pics)
@@ -41,7 +41,7 @@ def facedetect():
 
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         star=time.time()
-        boxes,scores=detector(img,0.9)
+        boxes,scores=detector(img,0.7)
         #print('one iamge cost %f s'%(time.time()-star))
         #print(boxes.shape)
         #print(boxes)  
@@ -95,4 +95,4 @@ def video_demo():
 
 
 if __name__=='__main__':
-    video_demo()
+    facedetect()

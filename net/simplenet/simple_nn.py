@@ -121,24 +121,28 @@ def basic_unit_plain(x):
     return x
 
 ### a simple conv unit with downsampling
-def basic_unit_with_downsampling_plain(x,out_channels=None):
+def basic_unit_with_downsampling_plain(x,out_channels=None,decrese=True):
+
+    stride =2 if decrese else 1
     in_channels = x.shape[3].value
     out_channels = 2 * in_channels if out_channels is None else out_channels
 
-    y = slim.conv2d(x, out_channels//2, [3, 3], stride=2, activation_fn=tf.nn.relu, scope='conv1x1_before')
+    y = slim.conv2d(x, out_channels//2, [3, 3], stride=stride, activation_fn=tf.nn.relu, scope='conv1x1_before')
 
     with tf.variable_scope('second_branch'):
+
+        if decrese:
+            x = tf.nn.max_pool(x, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding="SAME", name='conv1x1_after_pool')
         x = slim.conv2d(x, out_channels // 2, [1, 1], stride=1, activation_fn=tf.nn.relu, scope='conv1x1_after')
-        x = tf.nn.max_pool(x, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding="SAME", name='conv1x1_after_pool')
+
     x = tf.concat([x, y], axis=3)
     return x
 
-
-def block_plain(x, num_units,out_channels=None, scope='stage'):
+def block_plain(x, num_units,out_channels=None,decrese=True, scope='stage'):
     with tf.variable_scope(scope):
 
         with tf.variable_scope('unit_1'):
-            x = basic_unit_with_downsampling_plain(x,out_channels)
+            x = basic_unit_with_downsampling_plain(x,out_channels,decrese)
 
         for j in range(2, num_units + 1):
             with tf.variable_scope('unit_%d' % j):
@@ -155,7 +159,6 @@ def block(x, num_units,out_channels=None, scope='stage'):
 
         for j in range(2, num_units + 1):
             with tf.variable_scope('unit_%d' % j):
-
                 x = basic_unit(x)
 
     return x
@@ -175,21 +178,24 @@ def block_with_shuffle(x, num_units,out_channels=None, scope='stage'):
         x = tf.concat([x, y], axis=3)
 
     return x
-def block_plain_with_shuffle(x, num_units, L2_reg,training,out_channels=None, scope='stage'):
+
+def block_plain_with_shuffle(x, num_units,out_channels=None, scope='stage'):
     with tf.variable_scope(scope):
 
         with tf.variable_scope('unit_1'):
-            x, y = basic_unit_with_downsampling_plain(x,L2_reg, training,out_channels)
+            x, y = basic_unit_with_downsampling_plain(x,out_channels)
 
         for j in range(2, num_units + 1):
             with tf.variable_scope('unit_%d' % j):
                 x, y = concat_shuffle_split(x, y)
 
-                x = basic_unit_plain(x,L2_reg,training)
+                x = basic_unit_plain(x)
 
         x = tf.concat([x, y], axis=3)
 
     return x
+
+
 def simple_nn(inputs,L2_reg,training=True):
 
     fms=[]
@@ -201,19 +207,26 @@ def simple_nn(inputs,L2_reg,training=True):
 
             net = slim.conv2d(inputs, 16, [3, 3],stride=2, activation_fn=tf.nn.crelu, scope='init_conv')
 
-            net = tf.nn.max_pool(net, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding="SAME", name='pool1')
+            #net = tf.nn.max_pool(net, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding="SAME", name='pool1')
+            # scale_1 = tf.nn.max_pool(inputs, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding="SAME", name='p1')
+            # net = tf.concat([net, scale_1], axis=3)
 
-            # net = slim.separable_conv2d(net, 48, [3, 3], stride=2, activation_fn=tf.nn.relu,
-            #                           normalizer_fn=slim.batch_norm, scope='init_conv_2', depth_multiplier=1)
+            net = slim.conv2d(net, 32, [3, 3], stride=2, activation_fn=tf.nn.crelu,
+                                        scope='init_conv_2')
+
+
             fms.append(net)
+
             print('first conv shape', net.shape)
-            net = block_plain(net, num_units=1, out_channels=256, scope='Stage2')
+            net = block_plain(net, num_units=2, out_channels=64, scope='Stage2')
             print('2 conv shape', net.shape)
             fms.append(net)
-            net = block_plain(net, num_units=2, out_channels=256, scope='Stage3')
+            net = block_plain(net, num_units=2, out_channels=128, scope='Stage3')
             print('3 conv shape', net.shape)
             fms.append(net)
-            net = block_plain(net, num_units=2, out_channels=256, scope='Stage4')
+            # net = block_plain(net, num_units=1, out_channels=32, scope='Stage4_lowdim1',decrese=False)
+            # net = block_plain(net, num_units=1, out_channels=64, scope='Stage4_lowdim2',decrese=False)
+            net = block_plain(net, num_units=4, out_channels=256, scope='Stage4')
             fms.append(net)
             print('4 conv shape', net.shape)
 

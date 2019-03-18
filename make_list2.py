@@ -15,7 +15,7 @@ def GetFileList(dir, fileList):
             newDir=os.path.join(dir,s)
             GetFileList(newDir, fileList)
     return fileList
-data_dir='/data/coco_data/facedetection/wider_facetrain/annotations'
+data_dir='/home/lz/coco_data/wider_facetrain/annotations'
 
 
 pic_list=[]

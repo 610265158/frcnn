@@ -14,6 +14,26 @@ resnet_arg_scope = partial(resnet_arg_scope, bn_trainable=True)
 from net.simplenet.simple_nn import simple_nn
 
 
+
+
+def large_conv(feature,scope):
+    branch_1 = slim.separable_conv2d(feature, 16, [1, 7],
+                          padding='SAME', activation_fn=tf.nn.relu,
+                          scope='lateral_1_1/res{}'.format(5 - scope))
+    branch_1 = slim.separable_conv2d(branch_1, 16, [7, 1],
+                              padding='SAME', activation_fn=None,
+                              scope='lateral_1_2/res{}'.format(5 - scope))
+
+    branch_2 = slim.separable_conv2d(feature, 16, [7, 1],
+                                     padding='SAME', activation_fn=tf.nn.relu,
+                                     scope='lateral_2_1/res{}'.format(5 - scope))
+    branch_2 = slim.separable_conv2d(branch_2, 16, [1, 7],
+                                     padding='SAME', activation_fn=None,
+                                     scope='lateral_2_2/res{}'.format(5 - scope))
+
+
+    return tf.add(branch_1,branch_2,name='lateral/res{}'.format(5 - scope))
+
 def create_global_net(blocks, L2_reg,is_training, trainable=True,data_format='NHWC'):
     global_fms = []
 
@@ -21,11 +41,11 @@ def create_global_net(blocks, L2_reg,is_training, trainable=True,data_format='NH
     initializer = tf.contrib.layers.xavier_initializer()
     for i, block in enumerate(reversed(blocks)):
         with slim.arg_scope(resnet_arg_scope(weight_decay=L2_reg,bn_is_training=is_training,data_format=data_format)):
-            lateral = slim.conv2d(block, 32, [1, 1],
-                trainable=trainable, weights_initializer=initializer,
-                padding='SAME', activation_fn=tf.nn.relu,
-                scope='lateral/res{}'.format(5-i))
-
+            # lateral = slim.conv2d(block, 32, [1, 1],
+            #     trainable=trainable, weights_initializer=initializer,
+            #     padding='SAME', activation_fn=None,
+            #     scope='lateral/res{}'.format(5-i))
+            lateral=large_conv(block,i)
             if last_fm is not None:
 
                 upsample = tf.keras.layers.UpSampling2D(data_format='channels_last' if data_format=='NHWC' else 'channels_first')(last_fm)
@@ -38,7 +58,7 @@ def create_global_net(blocks, L2_reg,is_training, trainable=True,data_format='NH
             else:
                 last_fm = lateral
 
-        global_fms.append(last_fm)
+        global_fms.append(tf.nn.relu(last_fm,name='fpn_relu/res{}'.format(5-i)))
 
 
 

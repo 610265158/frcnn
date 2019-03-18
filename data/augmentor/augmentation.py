@@ -374,6 +374,14 @@ def Random_brightness(src, bright_shrink=40):
     src[src <0] = 0
     src = src.astype(np.uint8)
     return src
+
+
+def Gray_aug(src):
+    g_img=cv2.cvtColor(src,cv2.COLOR_RGB2GRAY)
+    src[:,:,0]=g_img
+    src[:,:,1]=g_img
+    src[:,:,2]=g_img
+    return src
 def Mirror(src,label=None,symmetry=None):
 
     img = cv2.flip(src, 1)
@@ -430,23 +438,38 @@ def visualize_heatmap_target(heatmap):
 if __name__=='__main__':
 
 
-    for i in range(10):
+    for i in range(100):
         img=cv2.imread('./test.jpg')
         bboxes = np.array([[60, 165, 138, 233]])
         #bboxes=np.array([[165,60,233,138],[100,60,233,138]])
-        img, bboxes=Random_scale_withbbox(img,bboxes,target_shape=[1024,1024],jitter=0.4)
+        image, boxes=Random_scale_withbbox(img,bboxes,target_shape=[1024,1024],jitter=0.4)
+
 
 
         if random.uniform(0, 1) > 0.5:
-            k = random.uniform(-90, 90)
-            img, bboxes = Rotate_with_box(img, k, bboxes)
+            image, boxes =Random_flip(image, boxes)
+        image=Pixel_jitter(image,max_=15)
+        if random.uniform(0,1)>0.5:
+            image=Random_contrast(image,[0.2,1.8])
+        if random.uniform(0,1)>0.5:
+            image=Random_brightness(image,80)
+        if random.uniform(0,1)>0.5:
+            a=[3,5,7,11,15]
+            k=random.sample(a, 1)[0]
+            image=Blur_aug(image,ksize=(k,k))
+        if random.uniform(0, 1) > 0.5:
+            k = random.uniform(-180, 180)
+            image, boxes = Rotate_with_box(image, k, boxes)
+        if random.uniform(0, 1) > 0.5:
+            image = Gray_aug(image)
 
-        for i in range(bboxes.shape[0]):
-            box = bboxes[i]
-            cv2.rectangle(img, (int(box[1]), int(box[0])),
+
+        for i in range(boxes.shape[0]):
+            box = boxes[i]
+            cv2.rectangle(image, (int(box[1]), int(box[0])),
                           (int(box[3]), int(box[2])),
                           (222, 222, 100), 1)
 
-        cv2.imshow('tmp1', img)
+        cv2.imshow('tmp1', image)
         cv2.waitKey(0)
 

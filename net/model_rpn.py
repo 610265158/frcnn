@@ -19,12 +19,12 @@ def rpn_head(scope_str,featuremap, channel, num_anchors,L2_reg,training):
     with slim.arg_scope(arg_scope):
         with slim.arg_scope([slim.batch_norm], is_training=training):
             with tf.variable_scope(scope_str):
-                hidden = slim.conv2d(featuremap, channel, [3, 3], stride=1, activation_fn=tf.nn.relu,
-                                     biases_initializer=None,scope='conv0')
+                # hidden = slim.conv2d(featuremap, channel, [3, 3], stride=1, activation_fn=tf.nn.relu,
+                #                      biases_initializer=None,scope='conv0')
 
-                label_logits =slim.conv2d(hidden, num_anchors, [1, 1], stride=1, activation_fn=None,
+                label_logits =slim.conv2d(featuremap, num_anchors, [1, 1], stride=1, activation_fn=None,
                                   normalizer_fn=None, scope='class')
-                box_logits = slim.conv2d(hidden, 4 * num_anchors, [1, 1], stride=1, activation_fn=None,
+                box_logits = slim.conv2d(featuremap, 4 * num_anchors, [1, 1], stride=1, activation_fn=None,
                                   normalizer_fn=None, scope='box')
                 #label_logits = tf.transpose(label_logits, [0, 2, 3, 1])  # 1xfHxfWxNA
                 label_logits = tf.squeeze(label_logits, 0)  # fHxfWxNA

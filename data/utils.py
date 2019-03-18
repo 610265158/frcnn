@@ -13,7 +13,7 @@ from net.data import *
 from helper.logger import logger
 from data.datainfo import data_info
 from data.augmentor.augmentation import Pixel_jitter,Fill_img,Random_contrast,\
-    Random_brightness,Random_scale_withbbox,Random_flip,Blur_aug,Rotate_with_box
+    Random_brightness,Random_scale_withbbox,Random_flip,Blur_aug,Rotate_with_box,Gray_aug
 
 from train_config import config as cfg
 
@@ -86,21 +86,24 @@ def _data_aug_fn(fname, ground_truth,is_training=True):
         image, boxes=Random_scale_withbbox(image,boxes,target_shape=[cfg.DATA.hin,cfg.DATA.win],jitter=0.3)
 
         if is_training:
+
+
             if random.uniform(0, 1) > 0.5:
                 image, boxes =Random_flip(image, boxes)
             image=Pixel_jitter(image,max_=15)
             if random.uniform(0,1)>0.5:
-                image=Random_contrast(image)
+                image=Random_contrast(image,[0.2,1.8])
             if random.uniform(0,1)>0.5:
-                image=Random_brightness(image)
+                image=Random_brightness(image,80)
             if random.uniform(0,1)>0.5:
-                a=[3,5,7]
+                a=[3,5,7,11,15]
                 k=random.sample(a, 1)[0]
                 image=Blur_aug(image,ksize=(k,k))
             if random.uniform(0, 1) > 0.5:
-                k = random.uniform(-90, 90)
+                k = random.uniform(-30, 30)
                 image, boxes = Rotate_with_box(image, k, boxes)
-
+            if random.uniform(0, 1) > 0.7:
+                image = Gray_aug(image)
 
         boxes=np.clip(boxes,0,cfg.DATA.hin)
         # ###cove the small faces

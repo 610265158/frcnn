@@ -79,6 +79,7 @@ def fasterrcnn_arg_scope(weight_decay=0.00001,
 
 def backbone(image,L2_reg,is_training):
     from net.simplenet.backbone import plain_resnet50_backbone
+    # from net.resnet_cp.backbone import plain_resnet50_backbone
     p23456=plain_resnet50_backbone(image,L2_reg,is_training)
     return p23456
 
@@ -150,7 +151,7 @@ def roi_heads( image, features, proposals, targets,L2_reg,is_training,python_tra
     fastrcnn_head_func = getattr(model_frcnn, cfg.FPN.FRCNN_HEAD_FUNC)
 
     if not cfg.FPN.CASCADE:
-        roi_feature_fastrcnn = multilevel_roi_align(features[:4], proposals.boxes, 5)
+        roi_feature_fastrcnn = multilevel_roi_align(features[:4], proposals.boxes, 7)
 
 
         print('roi_feature_fastrcnn',roi_feature_fastrcnn)

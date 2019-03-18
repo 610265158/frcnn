@@ -38,10 +38,10 @@ def GroupNorm_nhwc(x,G=16,eps=1e-5,gamma_initializer=tf.constant_initializer(1.)
 
     with tf.variable_scope('GN'):
         N,H,W,C=x.get_shape().as_list()
-        x=tf.reshape(x,[tf.cast(N,tf.int32),tf.cast(H,tf.int32),tf.cast(W,tf.int32),tf.cast(G,tf.int32),tf.cast(C//G,tf.int32)])
+        x=tf.reshape(x,[N,H,W,G,C//G])
         mean,var=tf.nn.moments(x,[1,2,4],keep_dims=True)
         x=(x-mean)/tf.sqrt(var+eps)
-        x=tf.reshape(x,[tf.cast(N,tf.int32),tf.cast(H,tf.int32),tf.cast(W,tf.int32),tf.cast(C,tf.int32)])
+        x=tf.reshape(x,[N,H,W,C])
 
         gamma = tf.get_variable('gamma', [1,1,1,C], initializer=gamma_initializer)
         beta = tf.get_variable('beta', [1,1,1,C], initializer=tf.constant_initializer())
