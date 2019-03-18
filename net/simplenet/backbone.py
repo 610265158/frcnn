@@ -16,18 +16,20 @@ from net.simplenet.simple_nn import simple_nn
 
 
 
+n_chanel=128
+
 def large_conv(feature,scope):
-    branch_1 = slim.separable_conv2d(feature, 16, [1, 7],
+    branch_1 = slim.separable_conv2d(feature, n_chanel, [1, 5],
                           padding='SAME', activation_fn=tf.nn.relu,
                           scope='lateral_1_1/res{}'.format(5 - scope))
-    branch_1 = slim.separable_conv2d(branch_1, 16, [7, 1],
+    branch_1 = slim.separable_conv2d(branch_1, n_chanel, [5, 1],
                               padding='SAME', activation_fn=None,
                               scope='lateral_1_2/res{}'.format(5 - scope))
 
-    branch_2 = slim.separable_conv2d(feature, 16, [7, 1],
+    branch_2 = slim.separable_conv2d(feature, n_chanel, [5, 1],
                                      padding='SAME', activation_fn=tf.nn.relu,
                                      scope='lateral_2_1/res{}'.format(5 - scope))
-    branch_2 = slim.separable_conv2d(branch_2, 16, [1, 7],
+    branch_2 = slim.separable_conv2d(branch_2, n_chanel, [1, 5],
                                      padding='SAME', activation_fn=None,
                                      scope='lateral_2_2/res{}'.format(5 - scope))
 

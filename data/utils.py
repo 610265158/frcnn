@@ -83,7 +83,13 @@ def _data_aug_fn(fname, ground_truth,is_training=True):
         boxes[boxes < 0] = 0
         #########random scale
         ############## becareful with this func because there is a Infinite loop in its body
-        image, boxes=Random_scale_withbbox(image,boxes,target_shape=[cfg.DATA.hin,cfg.DATA.win],jitter=0.3)
+
+        if not cfg.DATA.MUTISCALE:
+            image, boxes=Random_scale_withbbox(image,boxes,target_shape=[cfg.DATA.hin,cfg.DATA.win],jitter=0.3)
+        else:
+            rand_h=random.sample(cfg.DATA.scales, 1)[0]
+            rand_w = random.sample(cfg.DATA.scales, 1)[0]
+            image, boxes = Random_scale_withbbox(image, boxes, target_shape=[rand_h, rand_w], jitter=0.3)
 
         if is_training:
 
@@ -105,7 +111,7 @@ def _data_aug_fn(fname, ground_truth,is_training=True):
             if random.uniform(0, 1) > 0.7:
                 image = Gray_aug(image)
 
-        boxes=np.clip(boxes,0,cfg.DATA.hin)
+        #boxes=np.clip(boxes,0,cfg.DATA.hin)
         # ###cove the small faces
         # boxes_clean=[]
         # for i in range(boxes.shape[0]):
@@ -116,6 +122,8 @@ def _data_aug_fn(fname, ground_truth,is_training=True):
         #     else:
         #         boxes_clean.append(box)
         boxes=np.array(boxes,dtype=np.float32)
+
+
         boxes_refine=np.zeros_like(boxes)
         boxes_refine[:, 0] = boxes[:,1]
         boxes_refine[:, 1] = boxes[:, 0]

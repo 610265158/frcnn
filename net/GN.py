@@ -37,6 +37,32 @@ def GroupNorm_nhwc(x,G=16,eps=1e-5,gamma_initializer=tf.constant_initializer(1.)
 
 
     with tf.variable_scope('GN'):
+        orig_shape = tf.shape(x)
+
+        C = x.get_shape().as_list()[3]
+
+        N,H,W=orig_shape[0],orig_shape[1],orig_shape[2]
+
+        x=tf.reshape(x,[N,H,W,G,C//G])
+        mean,var=tf.nn.moments(x,[1,2,4],keep_dims=True)
+        x=(x-mean)/tf.sqrt(var+eps)
+
+        x=tf.reshape(x,orig_shape)
+
+        gamma = tf.get_variable('gamma', [C], initializer=gamma_initializer)
+        gamma = tf.reshape(gamma, [1,1,1,C])
+
+        beta = tf.get_variable('beta', [C], initializer=tf.constant_initializer())
+        beta = tf.reshape(beta, [1, 1, 1, C])
+    return x*gamma+beta
+
+
+
+def GroupNorm_nhwc__(x,G=16,eps=1e-5,gamma_initializer=tf.constant_initializer(1.)):
+
+
+
+    with tf.variable_scope('GN'):
         N,H,W,C=x.get_shape().as_list()
         x=tf.reshape(x,[N,H,W,G,C//G])
         mean,var=tf.nn.moments(x,[1,2,4],keep_dims=True)

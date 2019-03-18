@@ -185,8 +185,10 @@ class trainner():
                     with tf.device('/gpu:%d' % 0):
                         with tf.name_scope('lztower_%d' % (i)) as scope:
                             with slim.arg_scope([slim.model_variable, slim.variable], device='/cpu:0'):
-
-                                images_ = tf.placeholder(tf.float32, [cfg.DATA.hin,cfg.DATA.win, 3], name="images")
+                                if not cfg.MUTISCALE:
+                                    images_ = tf.placeholder(tf.float32, [cfg.DATA.hin,cfg.DATA.win, 3], name="images")
+                                else:
+                                    images_ = tf.placeholder(tf.float32, [None, None, 3], name="images")
                                 boxes_ = tf.placeholder(tf.float32, [None,4],name="input_boxes")
                                 labels_ = tf.placeholder(tf.int64, [None], name="input_labels")
                                 ###total anchor

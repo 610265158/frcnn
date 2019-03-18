@@ -437,12 +437,21 @@ def visualize_heatmap_target(heatmap):
     cv2.waitKey(0)
 if __name__=='__main__':
 
-
+    from train_config import config as cfg
     for i in range(100):
-        img=cv2.imread('./test.jpg')
-        bboxes = np.array([[60, 165, 138, 233]])
+        image=cv2.imread('./test.jpg')
+        boxes = np.array([[60, 165, 138, 233]])
         #bboxes=np.array([[165,60,233,138],[100,60,233,138]])
-        image, boxes=Random_scale_withbbox(img,bboxes,target_shape=[1024,1024],jitter=0.4)
+
+
+        if not cfg.DATA.MUTISCALE:
+            image, boxes=Random_scale_withbbox(image,boxes,target_shape=[cfg.DATA.hin,cfg.DATA.win],jitter=0.3)
+        else:
+            rand_h=random.sample(cfg.DATA.scales, 1)[0]
+            rand_w = random.sample(cfg.DATA.scales, 1)[0]
+            image, boxes = Random_scale_withbbox(image, boxes, target_shape=[rand_h, rand_w], jitter=0.3)
+
+        # image, boxes=Random_scale_withbbox(img,bboxes,target_shape=[1024,1024],jitter=0.4)
 
 
 

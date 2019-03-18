@@ -226,7 +226,7 @@ def simple_nn(inputs,L2_reg,training=True):
             fms.append(net)
             # net = block_plain(net, num_units=1, out_channels=32, scope='Stage4_lowdim1',decrese=False)
             # net = block_plain(net, num_units=1, out_channels=64, scope='Stage4_lowdim2',decrese=False)
-            net = block_plain(net, num_units=4, out_channels=256, scope='Stage4')
+            net = block_plain(net, num_units=4, out_channels=128, scope='Stage4')
             fms.append(net)
             print('4 conv shape', net.shape)
 

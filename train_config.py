@@ -5,10 +5,10 @@ import numpy as np
 from easydict import EasyDict as edict
 
 config = edict()
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 config.TRAIN = edict()
-config.TRAIN.num_gpu = 2
+config.TRAIN.num_gpu = 4
 config.TRAIN.batch_size = 1
 config.TRAIN.log_interval = 10
 config.TRAIN.epoch = 2000
@@ -87,7 +87,7 @@ config.FPN.CASCADE = False
 
 
 config.FRCNN = edict()
-config.FRCNN.BATCH_PER_IM = 512//8
+config.FRCNN.BATCH_PER_IM = 512//4
 config.FRCNN.BBOX_REG_WEIGHTS = [10., 10., 5., 5.]  # Better but non-standard setting: [20, 20, 10, 10]
 config.FRCNN.FG_THRESH = 0.5
 config.FRCNN.FG_RATIO = 0.25  # fg ratio in a ROI batch
@@ -106,7 +106,14 @@ config.DATA.PIXEL_STD = [58.395, 57.12, 57.375]
 config.DATA.hin = 480  # input size during training , 240
 config.DATA.win= 480
 
-config.DATA.MAX_SIZE=640
+config.DATA.MAX_SIZE=1024
+
+
+
+config.DATA.MUTISCALE=True
+config.DATA.scales=(960,800,640,512,480,416,320)
+
+
 
 config.BACKBONE = edict()
 # basemodel ----------------------
@@ -116,13 +123,13 @@ config.MODEL = edict()
 config.MODEL.continue_train=False ### revover from a trained model
 
 
-config.MODEL.mode=True ###True for train False for eval
+config.MODEL.mode=False ###True for train False for eval
 
 config.MODEL.MODE_MASK = False        # FasterRCNN or MaskRCNN
 config.MODEL.MODE_FPN = True
 
 config.MODEL.model_path = './model/'  # save directory
 
-config.MODEL.net_structure='resnet_v1_50' ######'InceptionResnetV2,resnet_v2_50
+config.MODEL.net_structure='ShuffleNetV2' ######'InceptionResnetV2,resnet_v2_50
 # config.MODEL.pretrained_model=None
-config.MODEL.pretrained_model='./model/epoch_19L2_1e-06.ckpt'
+config.MODEL.pretrained_model='./model/epoch_0L2_1e-06.ckpt'

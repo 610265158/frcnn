@@ -162,8 +162,8 @@ def fastrcnn_losses(labels, label_logits, fg_boxes, fg_box_logits):
     box_loss = tf.truediv(
         box_loss, tf.cast(tf.shape(labels)[0], tf.float32), name='box_loss')
 
-    add_moving_summary(label_loss, box_loss, accuracy,
-                       fg_accuracy, false_negative, tf.cast(num_fg, tf.float32, name='num_fg_label'))
+    # add_moving_summary(label_loss, box_loss, accuracy,
+    #                    fg_accuracy, false_negative, tf.cast(num_fg, tf.float32, name='num_fg_label'))
     return [label_loss, box_loss]
 
 
