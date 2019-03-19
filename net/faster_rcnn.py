@@ -75,16 +75,14 @@ def fasterrcnn_arg_scope(weight_decay=0.00001,
 
 
 
+def backbone(image, L2_reg, is_training):
+    if cfg.MODEL.LIGHT_HEAD:
+        from net.simplenet.backbone import simple_net_backbone_for_lighthead as backbone
+    else:
+        from net.simplenet.backbone import plain_resnet50_backbone as backbone
 
-
-def backbone(image,L2_reg,is_training):
-    from net.simplenet.backbone import plain_resnet50_backbone
-    # from net.resnet_cp.backbone import plain_resnet50_backbone
-    p23456=plain_resnet50_backbone(image,L2_reg,is_training)
-    return p23456
-
-
-
+    p23456, p23456_thin = backbone(image, L2_reg, is_training)
+    return p23456, p23456_thin
 
 
 def slice_feature_and_anchors( p23456, anchors):
@@ -205,19 +203,28 @@ def preprocess( image):
 
 
 def faster_rcnn( inputs,L2_reg=0.00001,is_training=True):
-    #from net.config import finalize_configs
-    #finalize_configs(True)
+
+
+
 
     anchor_inputs = {k: v for k, v in inputs.items() if 'anchor_' in k}
 
-    image = preprocess(inputs['images'])  # 1CHW
+    image = preprocess(inputs['images'])  # 1HWC
 
-    features = backbone(image,L2_reg,is_training)
+    rpn_features,frcnn_features = backbone(image,L2_reg,is_training)
 
-    print('backbone',features)
-    proposals, rpn_losses = rpn(image, features, anchor_inputs,L2_reg,is_training)  # inputs?
+
+    print('backbone',rpn_features)
+    print('backbone',frcnn_features)
+
+    proposals, rpn_losses = rpn(image, rpn_features, anchor_inputs,L2_reg,is_training)  # inputs?
 
     targets = [inputs[k] for k in ['gt_boxes', 'gt_labels', 'gt_masks'] if k in inputs]
-    head_losses = roi_heads(image, features, proposals, targets,L2_reg,is_training)
+    
+    if cfg.MODEL.LIGHT_HEAD:
+        head_losses = roi_heads(image, frcnn_features, proposals, targets,L2_reg,is_training)
+    else:
+        head_losses = roi_heads(image, rpn_features, proposals, targets, L2_reg, is_training)
+
     total_cost=rpn_losses+ head_losses
     return total_cost

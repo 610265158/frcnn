@@ -5,7 +5,7 @@ import numpy as np
 from easydict import EasyDict as edict
 
 config = edict()
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 config.TRAIN = edict()
 config.TRAIN.num_gpu = 4
@@ -103,7 +103,7 @@ config.DATA.cover_small_face=400.
 config.DATA.PIXEL_MEAN = [123.675, 116.28, 103.53]   ###rgb
 config.DATA.PIXEL_STD = [58.395, 57.12, 57.375]
 
-config.DATA.hin = 480  # input size during training , 240
+config.DATA.hin = 480  # input size
 config.DATA.win= 480
 
 config.DATA.MAX_SIZE=1024
@@ -128,8 +128,10 @@ config.MODEL.mode=False ###True for train False for eval
 config.MODEL.MODE_MASK = False        # FasterRCNN or MaskRCNN
 config.MODEL.MODE_FPN = True
 
+config.MODEL.LIGHT_HEAD=True
+
 config.MODEL.model_path = './model/'  # save directory
 
 config.MODEL.net_structure='ShuffleNetV2' ######'InceptionResnetV2,resnet_v2_50
-# config.MODEL.pretrained_model=None
-config.MODEL.pretrained_model='./model/epoch_0L2_1e-06.ckpt'
+#config.MODEL.pretrained_model=None
+config.MODEL.pretrained_model='./model/epoch_1L2_1e-06.ckpt'

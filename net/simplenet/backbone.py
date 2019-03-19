@@ -16,7 +16,7 @@ from net.simplenet.simple_nn import simple_nn
 
 
 
-n_chanel=128
+n_chanel=16
 
 def large_conv(feature,scope):
     branch_1 = slim.separable_conv2d(feature, n_chanel, [1, 5],
@@ -91,6 +91,18 @@ def plain_resnet50_backbone(image,L2_reg,is_training=True,data_format='NHWC'):
 
     #fpn_fms=add_a_pool(net_fms,data_format)
 
-    return fpn_fms
+    return fpn_fms,None
+
+def simple_net_backbone_for_lighthead(image,L2_reg,is_training=True,data_format='NHWC'):
 
 
+    net_fms = simple_nn(image, L2_reg,is_training)
+
+    print('simplenet backbone output:',net_fms)
+
+    frcnn_fms = create_global_net(net_fms, L2_reg, is_training, data_format=data_format)
+
+
+    rpn_fms=add_a_pool(net_fms,data_format)
+
+    return rpn_fms,frcnn_fms
