@@ -71,7 +71,7 @@ config.FPN = edict()
 config.FPN.ANCHOR_STRIDES = (4, 8, 16, 32, 64)  # strides for each FPN level. Must be the same length as ANCHOR_SIZES
 
 config.FPN.PROPOSAL_MODE = 'Level'  # 'Level', 'Joint'
-config.FPN.NUM_CHANNEL = 256//8
+config.FPN.NUM_CHANNEL = 16
 config.FPN.NORM = 'None'  # 'None', 'GN'
 
 config.FPN.FRCNN_HEAD_FUNC = 'fastrcnn_2fc_head'
@@ -110,7 +110,7 @@ config.DATA.MAX_SIZE=1024
 
 
 
-config.DATA.MUTISCALE=True
+config.DATA.MUTISCALE=True                #if muti scale set False  then config.DATA.hin will be the inputsize
 config.DATA.scales=(960,800,640,512,480,416,320)
 
 
@@ -122,8 +122,7 @@ config.MODEL = edict()
 
 config.MODEL.continue_train=False ### revover from a trained model
 
-
-config.MODEL.mode=False ###True for train False for eval
+config.MODEL.mode=True ###True for train False for eval
 
 config.MODEL.MODE_MASK = False        # FasterRCNN or MaskRCNN
 config.MODEL.MODE_FPN = True
@@ -133,5 +132,5 @@ config.MODEL.LIGHT_HEAD=True
 config.MODEL.model_path = './model/'  # save directory
 
 config.MODEL.net_structure='ShuffleNetV2' ######'InceptionResnetV2,resnet_v2_50
-#config.MODEL.pretrained_model=None
-config.MODEL.pretrained_model='./model/epoch_1L2_1e-06.ckpt'
+config.MODEL.pretrained_model=None
+# config.MODEL.pretrained_model='./model/epoch_1L2_1e-06.ckpt'

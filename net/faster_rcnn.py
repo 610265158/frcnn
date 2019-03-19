@@ -220,7 +220,7 @@ def faster_rcnn( inputs,L2_reg=0.00001,is_training=True):
     proposals, rpn_losses = rpn(image, rpn_features, anchor_inputs,L2_reg,is_training)  # inputs?
 
     targets = [inputs[k] for k in ['gt_boxes', 'gt_labels', 'gt_masks'] if k in inputs]
-    
+
     if cfg.MODEL.LIGHT_HEAD:
         head_losses = roi_heads(image, frcnn_features, proposals, targets,L2_reg,is_training)
     else:

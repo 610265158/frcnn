@@ -14,22 +14,22 @@ resnet_arg_scope = partial(resnet_arg_scope, bn_trainable=True)
 from net.simplenet.simple_nn import simple_nn
 
 
+from train_config import config as cfg
 
+n_chanel=cfg.FPN.NUM_CHANNEL
 
-n_chanel=16
-
-def large_conv(feature,scope):
-    branch_1 = slim.separable_conv2d(feature, n_chanel, [1, 5],
+def large_conv(feature,scope,kernel_size=5,tmp_channel=128,out_channel=n_chanel):
+    branch_1 = slim.separable_conv2d(feature, tmp_channel, [1, kernel_size],
                           padding='SAME', activation_fn=tf.nn.relu,
                           scope='lateral_1_1/res{}'.format(5 - scope))
-    branch_1 = slim.separable_conv2d(branch_1, n_chanel, [5, 1],
+    branch_1 = slim.separable_conv2d(branch_1, out_channel, [kernel_size, 1],
                               padding='SAME', activation_fn=None,
                               scope='lateral_1_2/res{}'.format(5 - scope))
 
-    branch_2 = slim.separable_conv2d(feature, n_chanel, [5, 1],
+    branch_2 = slim.separable_conv2d(feature, tmp_channel, [kernel_size, 1],
                                      padding='SAME', activation_fn=tf.nn.relu,
                                      scope='lateral_2_1/res{}'.format(5 - scope))
-    branch_2 = slim.separable_conv2d(branch_2, n_chanel, [1, 5],
+    branch_2 = slim.separable_conv2d(branch_2, out_channel, [1, kernel_size],
                                      padding='SAME', activation_fn=None,
                                      scope='lateral_2_2/res{}'.format(5 - scope))
 
